@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "801679944956",
+    "project_id": "vandana-app-690d4",
+    "storage_bucket": "vandana-app-690d4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801679944956:android:01025f7ce4bcb19ff37b79",
+        "android_client_info": {
+          "package_name": "com.app.vandana.vandana_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "801679944956-7e6mkbpjrclddl86gqmc4rlridnkbpvp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaNGd9qOz3rpJMG0gs-40lRRA9VrZ0Gpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "801679944956-7e6mkbpjrclddl86gqmc4rlridnkbpvp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801679944956:android:af7dd0f79f32d7b7f37b79",
+        "android_client_info": {
+          "package_name": "com.example.vandanarepairapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "801679944956-ls3c67837f36eio3gug9vvlfvha0t2fa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.vandanarepairapp",
+            "certificate_hash": "1c9864b07ee850c6b708c88e577950f5d0dac23e"
+          }
+        },
+        {
+          "client_id": "801679944956-7e6mkbpjrclddl86gqmc4rlridnkbpvp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaNGd9qOz3rpJMG0gs-40lRRA9VrZ0Gpg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "801679944956-7e6mkbpjrclddl86gqmc4rlridnkbpvp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
