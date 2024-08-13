@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vandana_app/network/Authentication.dart';
-import 'package:vandana_app/pages/LoginPage.dart';
+import 'package:vandana_app/network/authentication.dart';
+import 'package:vandana_app/pages/login_page.dart';
 
-import 'OrdersPage.dart';
+import 'auth_home_page.dart';
 
 final supabase = Supabase.instance.client;
 
@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             authenticated: authenticated,
           )
-        : OrdersPage(
+        : AuthHomePage(
             logoutCallback: () {
               Authentication().logout();
               setState(() {

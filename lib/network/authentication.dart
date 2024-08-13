@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -23,7 +24,7 @@ class Authentication {
         try {
           supabase.auth.refreshSession(currSession.refreshToken);
         } on Exception catch (e) {
-          print(e.toString());
+          debugPrint(e.toString());
           return null;
         }
       }

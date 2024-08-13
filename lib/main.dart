@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'pages/MyHomePage.dart';
+import 'pages/my_home_page.dart';
 
 const String supabaseUrl = 'https://coverzmylwaehqsqfdgm.supabase.co';
 const String supabaseKey = String.fromEnvironment('SUPABASE_KEY');
@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
       builder: (BuildContext context, Widget? child) {
         return MaterialApp(
           title: 'Vandana App',
+          debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,

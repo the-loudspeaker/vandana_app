@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:result_dart/result_dart.dart';
+import 'package:vandana_app/network/order_service.dart';
+import 'package:vandana_app/pages/orders_page.dart';
 
-class OrdersPage extends StatelessWidget {
+class AuthHomePage extends StatelessWidget {
   final VoidCallback logoutCallback;
-  const OrdersPage({super.key, required this.logoutCallback});
+  const AuthHomePage({super.key, required this.logoutCallback});
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +23,21 @@ class OrdersPage extends StatelessWidget {
             children: [
               Column(
                 children: [
-                  ElevatedButton(onPressed: () {  },
-                  child: const Text("View orders")),
-                  const ElevatedButton(onPressed: null,
-                  child: Text("Create order")),
+                  ElevatedButton(
+                      onPressed: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => const ViewOrdersPage())),
+                      child: const Text("View orders")),
+                  const ElevatedButton(
+                      onPressed: null, child: Text("Create new order")),
                   const ElevatedButton(
                     onPressed: null,
                     child: Text("Settings"),
                   ),
                 ],
               ),
-              ElevatedButton(onPressed: ()=> logoutCallback(), child: const Text("Logout"))
+              ElevatedButton(
+                  onPressed: () => logoutCallback(),
+                  child: const Text("Logout"))
             ],
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:vandana_app/network/Authentication.dart';
+import 'package:vandana_app/network/authentication.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback loginCallback;
