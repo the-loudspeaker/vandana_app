@@ -1,15 +1,17 @@
+import 'package:vandana_app/utils/utils.dart';
+
 class Order {
   final String id;
   final DateTime createdAt;
   final DateTime modifiedAt;
   final String customerName;
-  final String? customerContact;
+  final String customerContact;
   final String? customerAddress;
   final String model;
   final String issueDescription;
   final num estimatedCost;
   final num? actualCost;
-  final num advanceAmount;
+  final num? advanceAmount;
   final String remarks;
   final String status;
   final String screenlockType;
@@ -23,13 +25,13 @@ class Order {
     required this.createdAt,
     required this.modifiedAt,
     required this.customerName,
-    this.customerContact,
+    required this.customerContact,
     this.customerAddress,
     required this.model,
     required this.issueDescription,
     required this.estimatedCost,
     this.actualCost,
-    required this.advanceAmount,
+    this.advanceAmount,
     required this.remarks,
     required this.status,
     required this.screenlockType,
@@ -49,9 +51,9 @@ class Order {
       customerAddress: map['customer_address'],
       model: map['model'],
       issueDescription: map['issue_description'],
-      estimatedCost: map['estimated_cost']??0,
+      estimatedCost: map['estimated_cost'] ?? 0,
       actualCost: map['actual_cost'],
-      advanceAmount: map['advance_amount']??0,
+      advanceAmount: map['advance_amount'],
       remarks: map['remarks'],
       status: map['status'],
       screenlockType: map['screenlock_type'],

@@ -26,7 +26,9 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Vandana App',
           debugShowCheckedModeBanner: false,
+          color: Theme.of(context).colorScheme.primary,
           theme: ThemeData(
+            fontFamily: "Monsterrat",
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vandana_app/network/authentication.dart';
+import 'package:vandana_app/utils/utils.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback loginCallback;
   final bool authenticated;
-  const LoginPage({super.key, required this.loginCallback, required this.authenticated});
+  const LoginPage(
+      {super.key, required this.loginCallback, required this.authenticated});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -19,9 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Login"),
-      ),
+      appBar: customAppBar("Login", context),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             TextField(
               obscureText: true,
-              onSubmitted: null,
+              onSubmitted: (input) => signInUser(),
               onChanged: (input) {
                 setState(() {
                   password = input;
@@ -66,12 +66,20 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   signInUser() async {
-    if(email!=null && password!=null && email!.isNotEmpty && password!.isNotEmpty){
-      Result<AuthResponse, Error> res = await Authentication().signInWithEmail(email!, password!);
+    if (email != null &&
+        password != null &&
+        email!.isNotEmpty &&
+        password!.isNotEmpty) {
+      Result<AuthResponse, String> res =
+          await Authentication().signInWithEmail(email!, password!);
       res.onSuccess((success) {
         widget.loginCallback();
       });
-      res.onFailure((failure) {});
+      res.onFailure((failure) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(failure),
+        ));
+      });
     }
   }
 }

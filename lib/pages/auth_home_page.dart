@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:result_dart/result_dart.dart';
-import 'package:vandana_app/network/order_service.dart';
 import 'package:vandana_app/pages/orders_page.dart';
+import 'package:vandana_app/utils/utils.dart';
 
 class AuthHomePage extends StatelessWidget {
   final VoidCallback logoutCallback;
@@ -10,10 +9,7 @@ class AuthHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Home"),
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      ),
+      appBar: customAppBar("Home", context),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Center(
@@ -24,8 +20,10 @@ class AuthHomePage extends StatelessWidget {
               Column(
                 children: [
                   ElevatedButton(
-                      onPressed: () => Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => const ViewOrdersPage())),
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ViewOrdersPage())),
                       child: const Text("View orders")),
                   const ElevatedButton(
                       onPressed: null, child: Text("Create new order")),

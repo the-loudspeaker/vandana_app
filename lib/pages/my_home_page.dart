@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:result_dart/result_dart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vandana_app/network/authentication.dart';
 import 'package:vandana_app/pages/login_page.dart';
@@ -15,36 +17,62 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool authenticated = false;
-  String? email;
+  bool isLoading = false;
 
   @override
   void initState() {
-    var currSession = Authentication().getSessionDetails();
-    if (currSession != null) {
-      authenticated = true;
-      email = currSession.user.email;
-    }
+    asyncInit();
     super.initState();
+  }
+
+  void asyncInit() async {
+    setState(() {
+      isLoading = true;
+    });
+    Result<Session, String> currSessionFuture =
+        await Authentication().getSessionDetails();
+    currSessionFuture.onSuccess((success) {
+      showWelcomeSnackBar();
+      setState(() {
+        isLoading = false;
+        authenticated = true;
+      });
+    });
+    currSessionFuture.onFailure((failure) {
+      setState(() {
+        isLoading = true;
+      });
+    });
+  }
+
+  void showWelcomeSnackBar() async {
+    var prefs = await SharedPreferences.getInstance();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text("Welcome ${prefs.getString("name")}!"),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return !authenticated
-        ? LoginPage(
-            loginCallback: () {
-              setState(() {
-                authenticated = true;
-              });
-            },
-            authenticated: authenticated,
-          )
-        : AuthHomePage(
-            logoutCallback: () {
-              Authentication().logout();
-              setState(() {
-                authenticated = false;
-              });
-            },
-          );
+    return !isLoading
+        ? !authenticated
+            ? LoginPage(
+                loginCallback: () {
+                  showWelcomeSnackBar();
+                  setState(() {
+                    authenticated = true;
+                  });
+                },
+                authenticated: authenticated,
+              )
+            : AuthHomePage(
+                logoutCallback: () {
+                  Authentication().logout();
+                  setState(() {
+                    authenticated = false;
+                  });
+                },
+              )
+        : const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }
