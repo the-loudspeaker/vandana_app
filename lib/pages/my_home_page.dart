@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     currSessionFuture.onFailure((failure) {
       setState(() {
-        isLoading = true;
+        isLoading = false;
       });
     });
   }
