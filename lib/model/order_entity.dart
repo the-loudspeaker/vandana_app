@@ -1,11 +1,11 @@
-import 'package:vandana_app/utils/utils.dart';
-
 class Order {
   final String id;
   final DateTime createdAt;
   final DateTime modifiedAt;
+  final String modifiedBy;
+  final String createdBy;
   final String customerName;
-  final String customerContact;
+  final num? customerContact;
   final String? customerAddress;
   final String model;
   final String issueDescription;
@@ -16,14 +16,15 @@ class Order {
   final String status;
   final String screenlockType;
   final String screenlock;
-  final int jobId;
+  final int? jobId;
   final List<String> itemsList;
-  final String poc;
 
   Order({
     required this.id,
     required this.createdAt,
     required this.modifiedAt,
+    required this.modifiedBy,
+    required this.createdBy,
     required this.customerName,
     required this.customerContact,
     this.customerAddress,
@@ -36,9 +37,8 @@ class Order {
     required this.status,
     required this.screenlockType,
     required this.screenlock,
-    required this.jobId,
+    this.jobId,
     required this.itemsList,
-    required this.poc,
   });
 
   factory Order.fromMap(Map<String, dynamic> map) {
@@ -46,8 +46,10 @@ class Order {
       id: map['id'],
       createdAt: DateTime.parse(map['created_at']),
       modifiedAt: DateTime.parse(map['modified_at']),
+      modifiedBy: map['modified_by']??"",
+      createdBy: map['created_by']??"",
       customerName: map['customer_name'],
-      customerContact: map['customer_contact'],
+      customerContact: num.tryParse(map['customer_contact'] as String),
       customerAddress: map['customer_address'],
       model: map['model'],
       issueDescription: map['issue_description'],
@@ -60,7 +62,6 @@ class Order {
       screenlock: map['screenlock'],
       jobId: map['job_id'],
       itemsList: List<String>.from(map['items_list']),
-      poc: map['poc'],
     );
   }
 

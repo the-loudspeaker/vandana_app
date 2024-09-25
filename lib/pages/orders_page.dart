@@ -104,7 +104,7 @@ class OrderListWidget extends StatelessWidget {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      OrderDetailsPage(orderId: order.id, jobId: order.jobId)))
+                      OrderDetailsPage(orderId: order.id, jobId: order.jobId!)))
           .then((value) => callback!=null? callback!(): null),
       title: Text(order.model),
       subtitle: Text(
@@ -120,7 +120,7 @@ class OrderListWidget extends StatelessWidget {
             style: MontserratFont.heading4
                 .copyWith(color: getOrderColor(order.status)),
           ),
-          Text(order.poc)
+          Text(order.modifiedBy??"")
         ],
       ),
       leading: Text(order.jobId.toString()),

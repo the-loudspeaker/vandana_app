@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:vandana_app/model/order_entity.dart';
 import 'package:vandana_app/network/order_service.dart';
+import 'package:vandana_app/pages/edit_order.dart';
 import 'package:vandana_app/utils/custom_fonts.dart';
 import 'package:vandana_app/utils/utils.dart';
 
@@ -68,11 +69,13 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                             infoRow(
                                 "Updated at:", formatDate(order!.modifiedAt),
                                 mainAxisAlignment: MainAxisAlignment.start),
-                            infoRow("POC:", order!.poc,
+                            infoRow("POC:", order?.modifiedBy ?? "",
                                 mainAxisAlignment: MainAxisAlignment.start),
                             const Divider(),
                             infoRow("Customer name", order!.customerName),
-                            infoRow("Mobile no.", order!.customerContact),
+                            infoRow("Address", order?.customerAddress??""),
+                            infoRow("Mobile no.",
+                                order?.customerContact.toString() ?? ""),
                             infoRow("Problem", order!.issueDescription),
                             !isNullOREmpty(order!.remarks)
                                 ? RemarksWidget(order!.remarks)
@@ -123,7 +126,13 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                               children: [
                                 Expanded(
                                     child: ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () => Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        EditOrderScreen(
+                                                            givenOrder: order)))
+                                            .then((val) => fetchOrder()),
                                         child: const Text("Edit Order"))),
                                 Expanded(
                                     child: ElevatedButton(
@@ -134,10 +143,6 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                    child: ElevatedButton(
-                                        onPressed: () {},
-                                        child: const Text("Delete Order"))),
                                 Expanded(
                                     child: ElevatedButton(
                                         onPressed: () {},

@@ -73,7 +73,28 @@ enum ItemType {
   HEADPHONE,
   CHARGER,
   MEMORY_CARD,
-  SIM
+  SIM;
+
+  factory ItemType.fromString(String value) {
+    switch (value) {
+      case 'HANDSET':
+        return ItemType.HANDSET;
+      case 'BATTERY':
+        return ItemType.BATTERY;
+      case 'BACKCOVER':
+        return ItemType.BATTERY;
+      case 'HEADPHONE':
+        return ItemType.HEADPHONE;
+      case 'CHARGER':
+        return ItemType.CHARGER;
+      case 'MEMORY_CARD':
+        return ItemType.MEMORY_CARD;
+      case 'SIM':
+        return ItemType.SIM;
+      default:
+        throw Exception('Invalid enum value: $value');
+    }
+  }
 }
 
 enum OrderState {
@@ -85,10 +106,56 @@ enum OrderState {
   DELIVERED,
   CANCELLED,
   DELETED,
-  REJECTED
+  REJECTED;
+
+  factory OrderState.fromString(String value) {
+    switch (value) {
+      case "RECEIVED":
+        return OrderState.RECEIVED;
+      case "NEED_SPARE":
+        return OrderState.NEED_SPARE;
+      case "WAITING_CUSTOMER":
+        return OrderState.WAITING_CUSTOMER;
+      case "INPROGRESS":
+        return OrderState.INPROGRESS;
+      case "COMPLETED":
+        return OrderState.COMPLETED;
+      case "DELIVERED":
+        return OrderState.DELIVERED;
+      case "CANCELLED":
+        return OrderState.CANCELLED;
+      case "DELETED":
+        return OrderState.DELETED;
+      case "REJECTED":
+        return OrderState.REJECTED;
+      default:
+        throw Exception('Invalid enum value: $value');
+    }
+  }
 }
 
-enum ScreenLockType { PATTERN, PIN, NONE, PASSWORD }
+enum ScreenLockType {
+  NONE,
+  PASSWORD,
+  PATTERN,
+  PIN;
+
+  factory ScreenLockType.fromString(String? value) {
+    switch (value) {
+      case 'NONE':
+      case null:
+        return ScreenLockType.NONE;
+      case 'PASSWORD':
+        return ScreenLockType.PASSWORD;
+      case 'PATTERN':
+        return ScreenLockType.PATTERN;
+      case 'PIN':
+        return ScreenLockType.PIN;
+      default:
+        throw Exception('Invalid enum value: $value');
+    }
+  }
+}
 
 Color getOrderColor(String state) {
   if (state == OrderState.RECEIVED.name) {

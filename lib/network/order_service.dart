@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:result_dart/result_dart.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vandana_app/model/order_entity.dart';
 import 'package:vandana_app/utils/constants.dart';
@@ -41,6 +42,43 @@ class OrderService {
               );
       return Success(fullPath);
     } on Exception catch (e) {
+      return Failure(e.toString());
+    }
+  }
+
+  Future<Result<Order, String>> updateOrder(String id, Map<dynamic, dynamic> fieldsMap) async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      Map<String, String> modifiedByMap = {
+        'modified_by': prefs.getString('name')??""
+      };
+      fieldsMap.addAll(modifiedByMap);
+      var data = await supabase
+          .from("orders")
+          .update(fieldsMap)
+          .eq('id', id)
+          .select();
+      if (data.isEmpty) throw Exception("No order found");
+      return Success(Order.fromMap(data.first));
+    } on Exception catch (e) {
+      return Failure(e.toString());
+    }
+  }
+
+  Future<Result<Order, String>> createOrder(Map<dynamic, dynamic> fieldsMap) async {
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      Map<String, String> createdByModifiedByMap = {
+        'created_by': prefs.getString('name')??"",
+        'modified_by': prefs.getString('name')??""
+      };
+      fieldsMap.addAll(createdByModifiedByMap);
+      var data = await supabase.from("orders")
+          .insert(fieldsMap).select();
+      if(data.isEmpty) throw Exception("Unable to create Order");
+      return Success(Order.fromMap(data.first));
+    } on Exception catch (e) {
+      print(e);
       return Failure(e.toString());
     }
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vandana_app/pages/edit_order.dart';
 import 'package:vandana_app/pages/orders_page.dart';
 import 'package:vandana_app/utils/utils.dart';
 
@@ -25,8 +26,13 @@ class AuthHomePage extends StatelessWidget {
                           MaterialPageRoute(
                               builder: (context) => const ViewOrdersPage())),
                       child: const Text("View orders")),
-                  const ElevatedButton(
-                      onPressed: null, child: Text("Create new order")),
+                  ElevatedButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const EditOrderScreen(givenOrder: null))),
+                      child: const Text("Create new order")),
                   const ElevatedButton(
                     onPressed: null,
                     child: Text("Settings"),

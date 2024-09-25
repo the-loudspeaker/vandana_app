@@ -7,5 +7,6 @@ A Order management app for [Vandana Mobile shoppe](https://maps.app.goo.gl/A6MA6
 make sure to add `--dart-define=SUPABASE_KEY=your_supabase_anon_key` to run args.
 
 ### TODO
-- Order details screen
+- Add items list & various buttons to Order details screen.
 - Edit Order details screen.
+- OrderService().update method. Only update data that's modified.
