@@ -26,13 +26,15 @@ class _ViewOrdersPageState extends State<ViewOrdersPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: customAppBar("Orders", context),
-      body: !isLoading
-          ? RefreshIndicator(
-              onRefresh: fetchOrdersBg,
-              child: OrderList(orders: orders, callback: () => fetchOrdersBg()))
-          : const Center(child: CircularProgressIndicator()),
+    return PopScope(
+      child: Scaffold(
+        appBar: customAppBar("Orders", context),
+        body: !isLoading
+            ? RefreshIndicator(
+                onRefresh: fetchOrdersBg,
+                child: OrderList(orders: orders, callback: () => fetchOrdersBg()))
+            : const Center(child: CircularProgressIndicator()),
+      ),
     );
   }
 
