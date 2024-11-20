@@ -28,7 +28,7 @@ if (flutterVersionName == null) {
 android {
     namespace "com.app.vandana.vandana_app"
     compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    ndkVersion "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
