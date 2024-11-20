@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vandana_app/utils/custom_fonts.dart';
 
-AppBar customAppBar(String title, BuildContext context) {
+AppBar customAppBar(String title, BuildContext context,
+    {List<Widget>? actions}) {
   return AppBar(
     title: Text(title),
     backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+    actions: actions,
   );
 }
 
@@ -137,7 +139,7 @@ enum OrderState {
 enum ScreenLockType {
   NONE,
   PASSWORD,
-  PATTERN,
+  // PATTERN,
   PIN;
 
   factory ScreenLockType.fromString(String? value) {
@@ -147,8 +149,8 @@ enum ScreenLockType {
         return ScreenLockType.NONE;
       case 'PASSWORD':
         return ScreenLockType.PASSWORD;
-      case 'PATTERN':
-        return ScreenLockType.PATTERN;
+      // case 'PATTERN':
+      //   return ScreenLockType.PATTERN;
       case 'PIN':
         return ScreenLockType.PIN;
       default:

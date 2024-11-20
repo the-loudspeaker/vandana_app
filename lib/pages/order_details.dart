@@ -34,7 +34,22 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: customAppBar("Order No. ${widget.jobId}", context),
+      appBar: customAppBar("Order No. ${widget.jobId}", context, actions: [
+        order?.status == OrderState.INPROGRESS.name
+            ? IconButton(
+                onPressed: () => updateStatus(OrderState.DELETED)
+                    .then((val) => fetchOrder()),
+                icon: const Icon(Icons.delete))
+            : const SizedBox(),
+        IconButton(
+            onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            EditOrderScreen(givenOrder: order)))
+                .then((val) => fetchOrder()),
+            icon: const Icon(Icons.edit))
+      ]),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
         child: RefreshIndicator(
@@ -73,12 +88,14 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 mainAxisAlignment: MainAxisAlignment.start),
                             const Divider(),
                             infoRow("Customer name", order!.customerName),
-                            infoRow("Address", order?.customerAddress??""),
+                            // infoRow("Address", order?.customerAddress??""),
                             infoRow("Mobile no.",
                                 order?.customerContact.toString() ?? ""),
+                            const Divider(),
+                            infoRow("Device model", order!.model),
                             infoRow("Problem", order!.issueDescription),
                             !isNullOREmpty(order!.remarks)
-                                ? RemarksWidget(order!.remarks)
+                                ? RemarksWidget(remark: order?.remarks ?? "")
                                 : const SizedBox(),
                             infoRow("Estimate", "Rs. ${order!.estimatedCost}"),
                             order!.advanceAmount != null
@@ -118,39 +135,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 screenLock: order!.screenlock),
                           ],
                         ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                    child: ElevatedButton(
-                                        onPressed: () => Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        EditOrderScreen(
-                                                            givenOrder: order)))
-                                            .then((val) => fetchOrder()),
-                                        child: const Text("Edit Order"))),
-                                Expanded(
-                                    child: ElevatedButton(
-                                        onPressed: () {},
-                                        child: const Text("Mark as Completed")))
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                    child: ElevatedButton(
-                                        onPressed: () {},
-                                        child: const Text("Mark as Delivered")))
-                              ],
-                            ),
-                          ],
-                        )
+                        getOrderButtons(OrderState.fromString(order!.status))
                       ],
                     )
                   : Center(child: Text(errorMessage))
@@ -182,15 +167,129 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       });
     });
   }
+
+  Widget getOrderButtons(OrderState orderState) {
+    switch (orderState) {
+      case OrderState.COMPLETED:
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: () => updateStatus(OrderState.DELIVERED)
+                            .then((val) => fetchOrder()),
+                        child: const Text("Mark as Delivered")))
+              ],
+            ),
+          ],
+        );
+      case OrderState.RECEIVED:
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: () => updateStatus(OrderState.REJECTED)
+                            .then((val) => fetchOrder()),
+                        child: const Text("Reject Order",
+                            style: TextStyle(color: Colors.redAccent)))),
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: () => updateStatus(OrderState.INPROGRESS)
+                            .then((val) => fetchOrder()),
+                        child: const Text("Start working")))
+              ],
+            ),
+          ],
+        );
+      case OrderState.INPROGRESS:
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: () => updateStatus(OrderState.NEED_SPARE)
+                            .then((val) => fetchOrder()),
+                        child: const Text("Need Spares"))),
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: () =>
+                            updateStatus(OrderState.WAITING_CUSTOMER)
+                                .then((val) => fetchOrder()),
+                        child: const Text("Wait for customer")))
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: () => updateStatus(OrderState.COMPLETED)
+                            .then((val) => fetchOrder()),
+                        child: const Text("Mark as Completed"))),
+              ],
+            ),
+          ],
+        );
+      case OrderState.NEED_SPARE:
+      case OrderState.WAITING_CUSTOMER:
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                    child: ElevatedButton(
+                        onPressed: () => updateStatus(OrderState.INPROGRESS)
+                            .then((val) => fetchOrder()),
+                        child: const Text("Resume working")))
+              ],
+            ),
+          ],
+        );
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Future<void> updateStatus(OrderState orderState) async {
+    Map<dynamic, dynamic> fieldsMap = {'status': orderState.name};
+
+    var res = await OrderService().updateOrder(widget.orderId, fieldsMap);
+    res.onSuccess((success) {
+      return;
+    });
+    res.onFailure((failure) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Error: $failure"),
+      ));
+    });
+  }
 }
 
-Widget RemarksWidget(String remark) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.end,
-    children: [
-      infoRow("Remarks", ""),
-      Text(remark,
-          textAlign: TextAlign.justify, style: MontserratFont.paragraphReg1)
-    ],
-  );
+class RemarksWidget extends StatelessWidget {
+  final String remark;
+  const RemarksWidget({super.key, required this.remark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        infoRow("Remarks", ""),
+        Text(remark,
+            textAlign: TextAlign.justify, style: MontserratFont.paragraphReg1)
+      ],
+    );
+  }
 }

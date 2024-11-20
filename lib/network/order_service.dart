@@ -46,18 +46,16 @@ class OrderService {
     }
   }
 
-  Future<Result<Order, String>> updateOrder(String id, Map<dynamic, dynamic> fieldsMap) async {
+  Future<Result<Order, String>> updateOrder(
+      String id, Map<dynamic, dynamic> fieldsMap) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       Map<String, String> modifiedByMap = {
-        'modified_by': prefs.getString('name')??""
+        'modified_by': prefs.getString('name') ?? ""
       };
       fieldsMap.addAll(modifiedByMap);
-      var data = await supabase
-          .from("orders")
-          .update(fieldsMap)
-          .eq('id', id)
-          .select();
+      var data =
+          await supabase.from("orders").update(fieldsMap).eq('id', id).select();
       if (data.isEmpty) throw Exception("No order found");
       return Success(Order.fromMap(data.first));
     } on Exception catch (e) {
@@ -65,20 +63,23 @@ class OrderService {
     }
   }
 
-  Future<Result<Order, String>> createOrder(Map<dynamic, dynamic> fieldsMap) async {
+  Future<Result<Order, String>> createOrder(
+      Map<dynamic, dynamic> fieldsMap) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       Map<String, String> createdByModifiedByMap = {
-        'created_by': prefs.getString('name')??"",
-        'modified_by': prefs.getString('name')??""
+        'created_by': prefs.getString('name') ?? "",
+        'modified_by': prefs.getString('name') ?? ""
       };
       fieldsMap.addAll(createdByModifiedByMap);
-      var data = await supabase.from("orders")
-          .insert(fieldsMap).select();
-      if(data.isEmpty) throw Exception("Unable to create Order");
+      var data = await supabase.from("orders").insert(fieldsMap).select();
+      if (data.isEmpty) throw Exception("Unable to create Order");
       return Success(Order.fromMap(data.first));
     } on Exception catch (e) {
       print(e);
+      if (e.toString().contains("estimated_cost")) {
+        return const Failure("Check Estimated Cost");
+      }
       return Failure(e.toString());
     }
   }

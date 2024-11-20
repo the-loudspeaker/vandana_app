@@ -12,7 +12,7 @@ class Order {
   final num estimatedCost;
   final num? actualCost;
   final num? advanceAmount;
-  final String remarks;
+  final String? remarks;
   final String status;
   final String screenlockType;
   final String screenlock;
@@ -33,7 +33,7 @@ class Order {
     required this.estimatedCost,
     this.actualCost,
     this.advanceAmount,
-    required this.remarks,
+    this.remarks,
     required this.status,
     required this.screenlockType,
     required this.screenlock,
