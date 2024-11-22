@@ -1,7 +1,7 @@
 # vandana_app
 
-An order management app for [Vandana Mobile shoppe](https://maps.app.goo.gl/A6MA6BUwm922xjDN7) <a href="https://maps.app.goo.gl/A6MA6BUwm922xjDN7" target="_blank">Vandana Mobile Shoppe</a>.
-The app primarily functions as a orderbook for mobile repair orders.
+An order management app for [Vandana Mobile Shoppe](https://maps.app.goo.gl/A6MA6BUwm922xjDN7).
+Primarily functions as an orderbook for mobile repair orders.
 
 Find images at the bottom.
 ___
