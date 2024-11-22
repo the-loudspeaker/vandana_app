@@ -1,8 +1,26 @@
 # vandana_app
 
-A Order management app for [Vandana Mobile shoppe](https://maps.app.goo.gl/A6MA6BUwm922xjDN7).
+An order management app for [Vandana Mobile shoppe](https://maps.app.goo.gl/A6MA6BUwm922xjDN7).
+The app primarily functions as a orderbook for mobile repair orders.
 
-## Getting Started
+Find images at the bottom.
+___
+## Features
+- Sign in for employees.
+- Order creation & state management.
+- Track POC for each order.
+- Images for orders.
+- Sharing of invoice.
+- Updates on sms.
+
+## Tech stuff
+- MVC architecture. Modular components.
+- Material Design.
+- Supabase as backed. Database handles authentication & CRUD operations.
+- Bucket storage for media.
+- Edge functions for messaging.
+___
+#### Build instructions
 
 make sure to add `--dart-define=SUPABASE_KEY=your_supabase_anon_key` to run args.
 
@@ -13,3 +31,14 @@ make sure to add `--dart-define=SUPABASE_KEY=your_supabase_anon_key` to run args
 - share order details/invoice screenshot / pdf.
 - attach picture with order.
 - attach multiple pictures, append one at end of delivered flow.
+- Send SMS on created & delivered.
+- Dark mode. Sync with System.
+___
+## Images
+![Orders](https://raw.githubusercontent.com/the-loudspeaker/vandana_app/refs/heads/main/showcase/orders.png)
+
+![order details](https://raw.githubusercontent.com/the-loudspeaker/vandana_app/refs/heads/main/showcase/order_details.png)
+
+![Create order](https://raw.githubusercontent.com/the-loudspeaker/vandana_app/refs/heads/main/showcase/create_order.png)
+
+![Edit order](https://raw.githubusercontent.com/the-loudspeaker/vandana_app/refs/heads/main/showcase/edit_order.png)
