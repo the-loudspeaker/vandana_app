@@ -1,6 +1,6 @@
 # vandana_app
 
-An order management app for [Vandana Mobile shoppe](https://maps.app.goo.gl/A6MA6BUwm922xjDN7).
+An order management app for [Vandana Mobile shoppe](https://maps.app.goo.gl/A6MA6BUwm922xjDN7) <a href="https://maps.app.goo.gl/A6MA6BUwm922xjDN7" target="_blank">Vandana Mobile Shoppe</a>.
 The app primarily functions as a orderbook for mobile repair orders.
 
 Find images at the bottom.
@@ -16,7 +16,7 @@ ___
 ## Tech stuff
 - MVC architecture. Modular components.
 - Material Design.
-- Supabase as backed. Database handles authentication & CRUD operations.
+- Supabase as backend. Database handles authentication & CRUD operations.
 - Bucket storage for media.
 - Edge functions for messaging.
 ___
