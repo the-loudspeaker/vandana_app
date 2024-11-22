@@ -24,11 +24,13 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
   String? issueDescription;
   String? remarks;
   num? estimatedCost;
+  num advancedPaid = 0;
   ScreenLockType? screenLockType = ScreenLockType.NONE;
   String? screenLock;
   List<ItemType> itemsList = List.empty(growable: true);
   final TextEditingController _estimatedCostController =
       TextEditingController();
+  final TextEditingController _advancePaidController = TextEditingController();
   final TextEditingController _customerContactController =
       TextEditingController();
 
@@ -43,6 +45,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
       issueDescription = widget.givenOrder?.issueDescription;
       remarks = widget.givenOrder?.remarks;
       estimatedCost = widget.givenOrder?.estimatedCost;
+      advancedPaid = widget.givenOrder?.advanceAmount ?? 0;
       try {
         screenLockType =
             ScreenLockType.fromString(widget.givenOrder!.screenlockType);
@@ -56,6 +59,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
           [];
       _customerContactController.text = customerContact.toString();
       _estimatedCostController.text = estimatedCost.toString();
+      _advancePaidController.text = advancedPaid.toString();
     }
     super.initState();
   }
@@ -92,6 +96,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                           ? "Select Order Status"
                           : "Order Status:"),
                   items: OrderState.values
+                      .where((e) => e != OrderState.DELIVERED)
                       .map((e) => DropdownMenuItem(
                             value: e,
                             child: Text(e.name,
@@ -104,7 +109,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                       orderState = value ?? OrderState.RECEIVED;
                     });
                   }),
-              const Divider(),
               FormBuilderTextField(
                   initialValue: customerName,
                   name: 'Customer Name',
@@ -207,8 +211,28 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                             ? "Enter Estimated Cost (in Rs.):"
                             : "Estimated Cost (in Rs.):"),
                     autocorrect: false,
-                    onChanged: (val) =>
-                        field.didChange(num.tryParse(val) ?? estimatedCost),
+                    onChanged: (val) => field.didChange(num.tryParse(val) ?? 0),
+                  );
+                },
+              ),
+              FormBuilderField<num>(
+                name: "Advance paid.",
+                initialValue: advancedPaid,
+                onChanged: (val) {
+                  setState(() {
+                    advancedPaid = val ?? 0;
+                  });
+                },
+                builder: (FormFieldState<num> field) {
+                  return TextField(
+                    controller: _advancePaidController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                        labelText: advancedPaid == 0
+                            ? "Enter advance paid (in Rs.):"
+                            : "Advance Paid (in Rs.):"),
+                    autocorrect: false,
+                    onChanged: (val) => field.didChange(num.tryParse(val) ?? 0),
                   );
                 },
               ),
@@ -293,7 +317,8 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
         !isNullOREmpty(model) &&
         !isNullOREmpty(issueDescription) &&
         !isNullOREmpty(estimatedCost.toString()) &&
-        itemsList.isNotEmpty;
+        itemsList.isNotEmpty &&
+        estimatedCost != 0;
   }
 
   void updateOrder() async {
@@ -306,6 +331,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
       'issue_description': issueDescription,
       'remarks': remarks,
       'estimated_cost': estimatedCost,
+      'advance_amount': advancedPaid,
       'screenlock_type': screenLockType?.name,
       'screenlock': screenLock ?? "",
       'items_list': "{${itemsList.map((e) => e.name).join(",")}}"
@@ -337,6 +363,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
       'issue_description': issueDescription,
       'remarks': remarks,
       'estimated_cost': estimatedCost,
+      'advance_amount': advancedPaid,
       'screenlock_type': screenLockType?.name,
       'screenlock': screenLock ?? "",
       'items_list': "{${itemsList.map((e) => e.name).join(",")}}"
