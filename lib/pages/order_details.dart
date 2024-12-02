@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:result_dart/result_dart.dart';
+import 'package:vandana_app/components/banner.dart';
+import 'package:vandana_app/components/reject_dialog.dart';
+import 'package:vandana_app/components/remarks.dart';
 import 'package:vandana_app/model/order_entity.dart';
 import 'package:vandana_app/network/order_service.dart';
 import 'package:vandana_app/pages/edit_order.dart';
@@ -37,18 +40,42 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       appBar: customAppBar("Order No. ${widget.jobId}", context, actions: [
         order?.status == OrderState.INPROGRESS.name
             ? IconButton(
-                onPressed: () => updateStatus(OrderState.DELETED)
-                    .then((val) => fetchOrder()),
+                tooltip: "Cancel Order",
+                onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => ReasonDialog(
+                          title: "Cancel Order",
+                          state: OrderState.CANCELLED,
+                          order: order!),
+                    ).then((val) => fetchOrder()),
+                icon: const Icon(Icons.cancel))
+            : const SizedBox(),
+        order?.status == OrderState.INPROGRESS.name
+            ? IconButton(
+                tooltip: "Delete Order",
+                onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => ReasonDialog(
+                          title: "Delete Order",
+                          state: OrderState.DELETED,
+                          order: order!),
+                    ).then((val) => fetchOrder()),
                 icon: const Icon(Icons.delete))
             : const SizedBox(),
-        IconButton(
-            onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            EditOrderScreen(givenOrder: order)))
-                .then((val) => fetchOrder()),
-            icon: const Icon(Icons.edit))
+        order?.status == OrderState.DELIVERED.name ||
+                order?.status == OrderState.DELETED.name ||
+                order?.status == OrderState.REJECTED.name ||
+                order?.status == OrderState.CANCELLED.name
+            ? const SizedBox()
+            : IconButton(
+                tooltip: "Edit Order",
+                onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                EditOrderScreen(givenOrder: order)))
+                    .then((val) => fetchOrder()),
+                icon: const Icon(Icons.edit))
       ]),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
@@ -135,6 +162,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                                 screenLock: order!.screenlock),
                           ],
                         ),
+                        BannerWidget(
+                            state: OrderState.fromString(order!.status)),
                         getOrderButtons(OrderState.fromString(order!.status))
                       ],
                     )
@@ -171,7 +200,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   Widget getOrderButtons(OrderState orderState) {
     switch (orderState) {
       case OrderState.COMPLETED:
-        return Column(
+        return const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
@@ -179,9 +208,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               children: [
                 Expanded(
                     child: ElevatedButton(
-                        onPressed: () => updateStatus(OrderState.DELIVERED)
-                            .then((val) => fetchOrder()),
-                        child: const Text("Mark as Delivered")))
+                        onPressed: null, child: Text("Mark as Delivered")))
               ],
             ),
           ],
@@ -195,8 +222,13 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               children: [
                 Expanded(
                     child: ElevatedButton(
-                        onPressed: () => updateStatus(OrderState.REJECTED)
-                            .then((val) => fetchOrder()),
+                        onPressed: () => showDialog(
+                              context: context,
+                              builder: (context) => ReasonDialog(
+                                  title: "Reject Order",
+                                  state: OrderState.REJECTED,
+                                  order: order!),
+                            ).then((val) => fetchOrder()),
                         child: const Text("Reject Order",
                             style: TextStyle(color: Colors.redAccent)))),
                 Expanded(
@@ -274,22 +306,5 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         content: Text("Error: $failure"),
       ));
     });
-  }
-}
-
-class RemarksWidget extends StatelessWidget {
-  final String remark;
-  const RemarksWidget({super.key, required this.remark});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        infoRow("Remarks", ""),
-        Text(remark,
-            textAlign: TextAlign.justify, style: MontserratFont.paragraphReg1)
-      ],
-    );
   }
 }
