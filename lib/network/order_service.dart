@@ -31,18 +31,37 @@ class OrderService {
     }
   }
 
-  Future<Result<String, String>> uploadOrUpdateImage(
-      File image, String destFileName) async {
+  Future<Result<String, String>> upsertImage(
+      String orderId, File image, String destFileName) async {
     try {
       final String fullPath =
           await supabase.storage.from(Constants.imageBucket).upload(
-                '${Constants.orderImagesFolder}/$destFileName',
+                '${Constants.orderImagesFolder}/$orderId/$destFileName',
                 image,
                 fileOptions: const FileOptions(upsert: true),
               );
       return Success(fullPath);
     } on Exception catch (e) {
       return Failure(e.toString());
+    }
+  }
+
+  Future<Result<List<FileObject>, String>> getImages(String orderId) async {
+    try {
+      final imageList = await supabase.storage
+          .from(Constants.imageBucket)
+          .list(path: "${Constants.orderImagesFolder}/$orderId");
+      return Success(imageList);
+    } on Exception catch (e) {
+      return Failure(e.toString());
+    }
+  }
+
+  String? getPublicUrl(String path) {
+    try {
+      return supabase.storage.from(Constants.imageBucket).getPublicUrl(path);
+    } on Exception catch (_) {
+      return null;
     }
   }
 

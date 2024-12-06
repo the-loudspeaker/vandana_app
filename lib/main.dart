@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          home: const SafeArea(child: MyHomePage()),
+          home: const MyHomePage(),
         );
       },
     );

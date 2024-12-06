@@ -41,6 +41,11 @@ dependencies:
   result_dart: ^1.1.1
   image_picker: ^1.1.2
   flutter_form_builder: ^9.4.1
+  mime: ^1.0.6
+  screenshot: ^3.0.0
+  path_provider: ^2.1.5
+  share_plus: ^10.1.2
+  font_awesome_flutter: ^10.8.0
 
 dev_dependencies:
   flutter_test:

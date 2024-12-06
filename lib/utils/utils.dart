@@ -18,11 +18,10 @@ String formatDate(DateTime dateTime) {
   return "${dateTime.hour > 12 ? dateTime.hour - 12 : dateTime.hour == 0 ? "12" : dateTime.hour}:${dateTime.minute < 10 ? "0${dateTime.minute}" : dateTime.minute.toString()} ${dateTime.hour >= 12 ? "pm" : "am"} on ${dateTime.day}/${dateTime.month}/${dateTime.year}";
 }
 
-Row infoRow(String key, String value, {MainAxisAlignment? mainAxisAlignment}) {
+Row infoRow(String key, String value,
+    {MainAxisAlignment? mainAxisAlignment, TextStyle? valueStyle}) {
   return Row(
-    mainAxisAlignment: (mainAxisAlignment != null)
-        ? mainAxisAlignment
-        : MainAxisAlignment.spaceBetween,
+    mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.spaceBetween,
     children: [
       Flexible(
           flex: 2, child: Text(key, style: MontserratFont.paragraphSemiBold1)),
@@ -30,7 +29,7 @@ Row infoRow(String key, String value, {MainAxisAlignment? mainAxisAlignment}) {
       Flexible(
           flex: 4,
           child: Text(value,
-              style: MontserratFont.paragraphReg1,
+              style: valueStyle ?? MontserratFont.paragraphReg1,
               overflow: TextOverflow.ellipsis))
     ],
   );

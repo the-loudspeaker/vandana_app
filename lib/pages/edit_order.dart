@@ -71,16 +71,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
           isExistingOrder
               ? "Edit Order no. ${widget.givenOrder?.jobId}"
               : "Create order",
-          context,
-          actions: [
-            IconButton(
-                onPressed: showButton()
-                    ? isExistingOrder
-                        ? updateOrder
-                        : createOrder
-                    : null,
-                icon: const Icon(Icons.save))
-          ]),
+          context),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
@@ -96,7 +87,9 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                           ? "Select Order Status"
                           : "Order Status:"),
                   items: OrderState.values
-                      .where((e) => e != OrderState.DELIVERED)
+                      .where((e) => isExistingOrder
+                          ? e != OrderState.DELIVERED
+                          : e == OrderState.RECEIVED)
                       .map((e) => DropdownMenuItem(
                             value: e,
                             child: Text(e.name,
@@ -308,17 +301,28 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
           ),
         ),
       ),
+      floatingActionButton: showButton()
+          ? FloatingActionButton(
+              onPressed: showButton()
+                  ? isExistingOrder
+                      ? updateOrder
+                      : createOrder
+                  : null,
+              child: const Icon(Icons.save))
+          : null,
     );
   }
 
   bool showButton() {
     return !isNullOREmpty(customerName) &&
         !isNullOREmpty(customerContact.toString()) &&
+        customerContact != 0 &&
+        customerContact.toString().length == 10 &&
         !isNullOREmpty(model) &&
         !isNullOREmpty(issueDescription) &&
         !isNullOREmpty(estimatedCost.toString()) &&
-        itemsList.isNotEmpty &&
-        estimatedCost != 0;
+        estimatedCost != 0 &&
+        itemsList.isNotEmpty;
   }
 
   void updateOrder() async {

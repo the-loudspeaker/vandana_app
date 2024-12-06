@@ -25,14 +25,17 @@ ___
 make sure to add `--dart-define=SUPABASE_KEY=your_supabase_anon_key` to run args.
 
 ### TODO
--[] OrderService().update method. Only update data that's modified.
--[x] flow for deleting or rejection cancellation. take remarks as input.
--[] separate delivered flow. Take remarks, mark as paid.
--[] share order details/invoice screenshot / pdf.
--[] attach picture with order.
--[] attach multiple pictures, append one at end of delivered flow.
--[] Send SMS on created & delivered.
--[] Dark mode. Sync with System.
+- [] OrderService().update method. Only update data that's modified.
+- [x] flow for deleting or rejection cancellation. take remarks as input.
+- [x] separate delivered flow. Take remarks, mark as paid.
+- [x] share order details/invoice screenshot / pdf.
+- [x] attach picture with order delivery.
+- [x] fetch image in order details if present.
+- [X] attach multiple pictures, append one at end of delivered flow.
+- [] Pdf print list of orders & status.
+- [] Send SMS on created & delivered.
+- [] Dark mode. Sync with System.
+- [] refactor: move to FutureBuilder for order details & orders list.
 ___
 ## Images
 ![Orders](https://raw.githubusercontent.com/the-loudspeaker/vandana_app/refs/heads/main/showcase/orders.png)

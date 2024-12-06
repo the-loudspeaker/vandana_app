@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:vandana_app/model/order_entity.dart';
 import 'package:vandana_app/network/order_service.dart';
 import 'package:vandana_app/utils/custom_fonts.dart';
 import 'package:vandana_app/utils/utils.dart';
 
+import 'edit_order.dart';
 import 'order_details.dart';
 
 class ViewOrdersPage extends StatefulWidget {
@@ -32,8 +34,20 @@ class _ViewOrdersPageState extends State<ViewOrdersPage> {
         body: !isLoading
             ? RefreshIndicator(
                 onRefresh: fetchOrdersBg,
-                child: OrderList(orders: orders, callback: () => fetchOrdersBg()))
+                child:
+                    OrderList(orders: orders, callback: () => fetchOrdersBg()))
             : const Center(child: CircularProgressIndicator()),
+        floatingActionButton: FloatingActionButton(
+          heroTag: "new_order",
+          tooltip: "New Order",
+          onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const EditOrderScreen(givenOrder: null)))
+              .then((val) => fetchOrders()),
+          child: const FaIcon(FontAwesomeIcons.plus),
+        ),
       ),
     );
   }
@@ -85,7 +99,8 @@ class OrderList extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
             itemCount: orders.length,
             itemBuilder: (context, index) => OrderListWidget(
-                order: orders[index], callback: callback!=null? () => callback!(): null),
+                order: orders[index],
+                callback: callback != null ? () => callback!() : null),
             separatorBuilder: (BuildContext context, int index) {
               return const Divider();
             },
@@ -105,9 +120,9 @@ class OrderListWidget extends StatelessWidget {
       onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) =>
-                      OrderDetailsPage(orderId: order.id, jobId: order.jobId!)))
-          .then((value) => callback!=null? callback!(): null),
+                  builder: (context) => OrderDetailsPage(
+                      orderId: order.id, jobId: order.jobId ?? 0)))
+          .then((value) => callback != null ? callback!() : null),
       title: Text(order.model),
       subtitle: Text(
         order.issueDescription,
@@ -122,7 +137,7 @@ class OrderListWidget extends StatelessWidget {
             style: MontserratFont.heading4
                 .copyWith(color: getOrderColor(order.status)),
           ),
-          Text(order.modifiedBy??"")
+          Text(order.modifiedBy)
         ],
       ),
       leading: Text(order.jobId.toString()),

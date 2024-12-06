@@ -32,7 +32,7 @@ class BannerWidget extends StatelessWidget {
                 Text("Paid",
                     style: MontserratFont.paragraphSemiBold1
                         .copyWith(color: Colors.greenAccent)),
-                Icon(Icons.done, size: 24.h, color: Colors.greenAccent),
+                Icon(Icons.done, size: 24.h, color: Colors.greenAccent)
               ],
             ),
           ),

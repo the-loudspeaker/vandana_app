@@ -8,12 +8,15 @@ class ReasonDialog extends StatefulWidget {
   final String title;
   final OrderState state;
   final Order order;
+  final String primaryButtonText;
+  final VoidCallback? successCallback;
   const ReasonDialog(
       {super.key,
       required this.title,
       required this.state,
-      required this.order});
-
+      required this.order,
+      required this.primaryButtonText,
+      this.successCallback});
   @override
   State<ReasonDialog> createState() => _ReasonDialogState();
 }
@@ -40,29 +43,40 @@ class _ReasonDialogState extends State<ReasonDialog> {
         controller: reasonController,
         autofocus: true,
         decoration: InputDecoration(
-            hintText: "Enter reason", hintStyle: MontserratFont.paragraphReg1),
+            hintText: widget.state == OrderState.DELIVERED
+                ? "Enter remarks"
+                : "Enter reason",
+            hintStyle: MontserratFont.paragraphReg1),
       ),
       actions: [
         TextButton(
             onPressed: !isNullOREmpty(reasonController.text)
-                ? () => updateStatusAndAddRemark(updatedRemarks)
-                    .then((val) => Navigator.pop(context))
+                ? () {
+                    updateStatusAndAddRemark(updatedRemarks).then((val) {
+                      if (val == "Success" && widget.successCallback != null) {
+                        widget.successCallback!();
+                      }
+                    });
+                  }
                 : null,
-            child: Text("Confirm ${widget.title}"))
+            child: Text(widget.primaryButtonText))
       ],
     );
   }
 
-  Future<void> updateStatusAndAddRemark(String? remarks) async {
+  Future<String> updateStatusAndAddRemark(String? remarks) async {
     Map<dynamic, dynamic> fieldsMap = {
       'status': widget.state.name,
       'remarks': remarks
     };
 
     var res = await OrderService().updateOrder(widget.order.id, fieldsMap);
-    res.onSuccess((success) {
-      return;
-    });
+    if (res.isSuccess()) {
+      return Future.value("Success");
+    } else {
+      return Future.value("Failure");
+    }
+    res.onSuccess((success) {});
     res.onFailure((failure) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Error: $failure"),
