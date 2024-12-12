@@ -32,7 +32,10 @@ make sure to add `--dart-define=SUPABASE_KEY=your_supabase_anon_key` to run args
 - [x] attach picture with order delivery.
 - [x] fetch image in order details if present.
 - [X] attach multiple pictures, append one at end of delivered flow.
-- [] Pdf print list of orders & status.
+- [x] share to print.
+- [x] Whatsapp message button.
+- [] Single image when creating. Multiple images on delivering.
+- [] Deliver rework.
 - [] Send SMS on created & delivered.
 - [] Dark mode. Sync with System.
 - [] refactor: move to FutureBuilder for order details & orders list.

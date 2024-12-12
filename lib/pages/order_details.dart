@@ -2,10 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:printing/printing.dart';
 import 'package:result_dart/result_dart.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:share_whatsapp/share_whatsapp.dart';
 import 'package:vandana_app/components/banner.dart';
 import 'package:vandana_app/components/order_image.dart';
 import 'package:vandana_app/components/reason_dialog.dart';
@@ -15,7 +19,11 @@ import 'package:vandana_app/model/order_entity.dart';
 import 'package:vandana_app/network/order_service.dart';
 import 'package:vandana_app/pages/edit_order.dart';
 import 'package:vandana_app/utils/custom_fonts.dart';
+import 'package:vandana_app/utils/shop_name.dart';
+import 'package:vandana_app/utils/terms_and_conditions.dart';
 import 'package:vandana_app/utils/utils.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 import 'deliver_order.dart';
 
@@ -181,9 +189,53 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
             : const Center(child: CircularProgressIndicator()),
       ),
       floatingActionButton: !isError && !isLoading
-          ? FloatingActionButton(
-              onPressed: shareHiddenWidget, child: const Icon(Icons.share))
-          : null,
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                    heroTag: "share order",
+                    tooltip: "Share",
+                    onPressed: shareHiddenWidget,
+                    child: const Icon(Icons.share)),
+                Padding(
+                  padding: EdgeInsets.only(top: 16.h),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      FloatingActionButton(
+                        heroTag: "print order",
+                        tooltip: "Print receipt",
+                        onPressed: printHiddenWidget,
+                        child: const Icon(Icons.print),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 16.h),
+                        child: FloatingActionButton(
+                          heroTag: "share on whatsapp",
+                          tooltip: "Share receipt on whatsapp.",
+                          onPressed: sendWhatsapp,
+                          child: const FaIcon(FontAwesomeIcons.whatsapp),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                if (order!.status == OrderState.WAITING_CUSTOMER.name)
+                  Padding(
+                    padding: EdgeInsets.only(top: 16.h),
+                    child: FloatingActionButton(
+                      heroTag: "call customer",
+                      tooltip: "Call Customer",
+                      backgroundColor: Colors.green,
+                      onPressed: callCustomer,
+                      child: const Icon(Icons.call),
+                    ),
+                  )
+              ],
+            )
+          : const SizedBox(),
       bottomNavigationBar:
           (!isError && !isLoading && order?.status != OrderState.DELIVERED.name)
               ? Padding(
@@ -344,6 +396,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
             mainAxisSize: MainAxisSize.min,
             // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const ShopNameWidget(),
+              const Divider(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -414,7 +468,9 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               ),
               const Divider(),
               SizedBox(height: 8.h),
-              BannerWidget(state: OrderState.fromString(order!.status))
+              BannerWidget(state: OrderState.fromString(order!.status)),
+              const Divider(),
+              const TermsAndConditionsWidget()
             ],
           ),
         ),
@@ -434,4 +490,57 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         /// Share Plugin
         await Share.shareXFiles([imageXFile]);
       });
+
+  Future<void> printHiddenWidget() async => screenshotController
+          .captureFromWidget(receiptWidget())
+          .then((value) async {
+        final doc = pw.Document(
+            title: order!.jobId.toString(),
+            subject: order!.jobId.toString(),
+            author: order!.createdBy.toString());
+        doc.addPage(pw.Page(
+          pageFormat: PdfPageFormat.a6,
+          build: (pw.Context context) =>
+              pw.Center(child: pw.Image(pw.MemoryImage(value))),
+        ));
+
+        try {
+          await Printing.layoutPdf(onLayout: (layout) => doc.save());
+        } on Exception catch (_) {}
+      });
+
+  Future<bool> callCustomer() async =>
+      await launchUrl(Uri.parse("tel:${order!.customerContact}"));
+
+  Future<void> sendWhatsapp() async {
+    return screenshotController
+        .captureFromWidget(receiptWidget())
+        .then((value) async {
+      final directory = await getTemporaryDirectory();
+      final imageFile =
+          await File('${directory.path}/${widget.orderId}.png').create();
+      await imageFile.writeAsBytes(value);
+      final imageXFile = XFile(imageFile.path);
+
+      try {
+        // await launchUrl(
+        //   Uri.parse(
+        //       "whatsapp://send?phone=918087103131&file=${imageFile.path}&text=Hello"),
+        // );
+        // const SocialPlatform platform = SocialPlatform.whatsapp;
+        // await SocialSharingPlus.shareToSocialMedia(
+        //   platform,
+        //   "test content",
+        //   media: imageFile.path,
+        //   isOpenBrowser: true,
+        // );
+        // await WhatsappShare.shareFile(
+        //     filePath: [imageFile.path], phone: "91${order!.customerContact}");
+        await shareWhatsapp.share(
+            phone: "91${order!.customerContact}",
+            text: "Order No. ${order!.jobId}",
+            file: imageXFile);
+      } on Exception catch (_) {}
+    });
+  }
 }
