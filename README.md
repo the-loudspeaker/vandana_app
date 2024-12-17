@@ -34,7 +34,9 @@ make sure to add `--dart-define=SUPABASE_KEY=your_supabase_anon_key` to run args
 - [X] attach multiple pictures, append one at end of delivered flow.
 - [x] share to print.
 - [x] Whatsapp message button.
-- [] Single image when creating. Multiple images on delivering.
+- [x] Single image when creating.
+- [x] Reject & cancel dialog box bug.
+- [] Multiple images on delivering.
 - [] Deliver rework.
 - [] Send SMS on created & delivered.
 - [] Dark mode. Sync with System.

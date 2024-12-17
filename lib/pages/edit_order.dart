@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:vandana_app/model/order_entity.dart';
 import 'package:vandana_app/network/order_service.dart';
+import 'package:vandana_app/pages/image_picker_page.dart';
 import 'package:vandana_app/pages/order_details.dart';
 import 'package:vandana_app/utils/custom_fonts.dart';
 import 'package:vandana_app/utils/utils.dart';
@@ -33,6 +37,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
   final TextEditingController _advancePaidController = TextEditingController();
   final TextEditingController _customerContactController =
       TextEditingController();
+  XFile? image;
 
   @override
   void initState() {
@@ -296,7 +301,30 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                     labelText: itemsList.isEmpty
                         ? "Select Items collected"
                         : "Items Collected"),
-              )
+              ),
+              if (!isExistingOrder)
+                Row(
+                  children: [
+                    Expanded(
+                        child: ElevatedButton(
+                            onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ImagePickerPage(
+                                          onPick: (List<XFile> images) {
+                                            if (mounted && images.isNotEmpty) {
+                                              setState(() {
+                                                image = images.first;
+                                              });
+                                            }
+                                          },
+                                        ))),
+                            child: Text(
+                                image == null ? "Add image" : "Re upload image",
+                                style: MontserratFont.paragraphReg1))),
+                  ],
+                ),
+              if (image != null) Image.file(File(image!.path))
             ],
           ),
         ),
@@ -314,6 +342,7 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
   }
 
   bool showButton() {
+    bool imageCheck = isExistingOrder || image != null;
     return !isNullOREmpty(customerName) &&
         !isNullOREmpty(customerContact.toString()) &&
         customerContact != 0 &&
@@ -322,7 +351,8 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
         !isNullOREmpty(issueDescription) &&
         !isNullOREmpty(estimatedCost.toString()) &&
         estimatedCost != 0 &&
-        itemsList.isNotEmpty;
+        itemsList.isNotEmpty &&
+        imageCheck;
   }
 
   void updateOrder() async {
@@ -374,7 +404,9 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
     };
 
     var res = await OrderService().createOrder(fieldsMap);
-    res.onSuccess((success) {
+    res.onSuccess((success) async {
+      await OrderService()
+          .upsertImage(success.id, File(image!.path), image!.name);
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Order created! Order No.: ${success.jobId}"),

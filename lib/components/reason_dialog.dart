@@ -53,7 +53,7 @@ class _ReasonDialogState extends State<ReasonDialog> {
             onPressed: !isNullOREmpty(reasonController.text)
                 ? () {
                     updateStatusAndAddRemark(updatedRemarks).then((val) {
-                      if (val == "Success" && widget.successCallback != null) {
+                      if (val == "Success") {
                         widget.successCallback!();
                       }
                     });

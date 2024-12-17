@@ -137,7 +137,9 @@ class OrderListWidget extends StatelessWidget {
             style: MontserratFont.heading4
                 .copyWith(color: getOrderColor(order.status)),
           ),
-          Text(order.modifiedBy)
+          order.status == OrderState.COMPLETED.name.toString()
+              ? const Text("payment & delivery remaining")
+              : Text(order.modifiedBy)
         ],
       ),
       leading: Text(order.jobId.toString()),

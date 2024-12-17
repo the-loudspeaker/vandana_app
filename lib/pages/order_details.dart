@@ -11,8 +11,9 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:share_whatsapp/share_whatsapp.dart';
 import 'package:vandana_app/components/banner.dart';
-import 'package:vandana_app/components/order_image.dart';
+import 'package:vandana_app/components/order_images_widget.dart';
 import 'package:vandana_app/components/reason_dialog.dart';
+import 'package:vandana_app/components/receipt.dart';
 import 'package:vandana_app/components/remarks.dart';
 import 'package:vandana_app/components/screen_lock.dart';
 import 'package:vandana_app/model/order_entity.dart';
@@ -67,7 +68,8 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           title: "Cancel Order",
                           state: OrderState.CANCELLED,
                           order: order!,
-                          primaryButtonText: "Confirm Cancel Order"),
+                          primaryButtonText: "Confirm Cancel Order",
+                          successCallback: () => Navigator.pop(context)),
                     ).then((val) => fetchOrder()),
                 icon: const Icon(Icons.cancel))
             : const SizedBox(),
@@ -80,6 +82,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           title: "Delete Order",
                           state: OrderState.DELETED,
                           order: order!,
+                          successCallback: () => Navigator.pop(context),
                           primaryButtonText: "Confirm Delete Order"),
                     ).then((val) => fetchOrder()),
                 icon: const Icon(Icons.delete))
@@ -107,6 +110,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                     padding:
                         EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
                     shrinkWrap: true,
+                    primary: true,
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -182,7 +186,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                           child: BannerWidget(
                               state: OrderState.fromString(order!.status))),
                       SizedBox(height: 16.h),
-                      OrderImage(orderId: order!.id),
+                      OrderImagesWidget(orderId: order!.id),
                     ],
                   )
                 : Center(child: Text(errorMessage))
@@ -307,6 +311,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
                             title: "Reject Order",
                             state: OrderState.REJECTED,
                             order: order!,
+                            successCallback: () => Navigator.pop(context),
                             primaryButtonText: "Confirm Reject Order"),
                       ).then((val) => fetchOrder()),
                   child: const Text("Reject Order",
@@ -382,165 +387,88 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     });
   }
 
-  Widget receiptWidget() {
-    num balanceAmount = order!.estimatedCost;
-    if (order!.advanceAmount != null) {
-      balanceAmount = balanceAmount - order!.advanceAmount!;
-    }
-    return InheritedTheme.captureAll(
-      context,
-      Material(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            // crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const ShopNameWidget(),
-              const Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                      flex: 1,
-                      child: Text("Order No.",
-                          style: MontserratFont.paragraphSemiBold1)),
-                  Flexible(
-                      flex: 4,
-                      child: Text(order!.jobId.toString(),
-                          style: MontserratFont.heading4
-                              .copyWith(color: Colors.redAccent)))
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                      flex: 1,
-                      child: Text("Status",
-                          style: MontserratFont.paragraphSemiBold1)),
-                  Flexible(
-                      flex: 4,
-                      child: Text(order!.status,
-                          style: MontserratFont.heading4
-                              .copyWith(color: getOrderColor(order!.status))))
-                ],
-              ),
-              const Divider(),
-              infoRow("Customer name", order!.customerName),
-              infoRow("Mobile no.", order!.customerContact.toString()),
-              const Divider(),
-              infoRow("Device model", order!.model),
-              infoRow("Problem", order!.issueDescription),
-              infoRow("Estimate", "Rs. ${order!.estimatedCost}"),
-              if (order!.advanceAmount != null)
-                infoRow("Advance", "Rs. ${order!.advanceAmount}"),
-              if (balanceAmount != 0)
-                infoRow("Balance", "Rs. $balanceAmount",
-                    valueStyle: MontserratFont.paragraphBold1
-                        .copyWith(color: Colors.red)),
-              if (order!.status == OrderState.DELIVERED.name)
-                infoRow("Paid", "Rs. ${order!.estimatedCost}",
-                    valueStyle: MontserratFont.paragraphBold1
-                        .copyWith(color: Colors.green)),
-              const Divider(),
-              Row(
-                children: [
-                  Text("Items collected:",
-                      style: MontserratFont.paragraphSemiBold1),
-                ],
-              ),
-              Table(
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                children: [
-                  for (List<String> chunk in order!.itemsList.chunk(2))
-                    TableRow(children: [
-                      for (String c in chunk)
-                        TableCell(
-                            child:
-                                Text(c, style: MontserratFont.paragraphReg1)),
-                      if (chunk.length == 1)
-                        TableCell(
-                            child:
-                                Text("", style: MontserratFont.paragraphReg1))
-                    ])
-                ],
-              ),
-              const Divider(),
-              SizedBox(height: 8.h),
-              BannerWidget(state: OrderState.fromString(order!.status)),
-              const Divider(),
-              const TermsAndConditionsWidget()
-            ],
-          ),
-        ),
-      ),
-    );
+  Future<void> shareHiddenWidget() async {
+    var res1 = await screenshotController.captureFromWidget(
+        ReceiptWidget(order: order!),
+        delay: const Duration(seconds: 0),
+        context: context);
+
+    final directory = await getApplicationDocumentsDirectory();
+    final imageFile =
+        await File('${directory.path}/${widget.orderId}.png').create();
+    await imageFile.writeAsBytes(res1);
+
+    await Share.shareXFiles([XFile(imageFile.path)]);
+    return Future.value();
   }
 
-  Future<void> shareHiddenWidget() async => screenshotController
-          .captureFromWidget(receiptWidget())
-          .then((value) async {
-        final directory = await getApplicationDocumentsDirectory();
-        final imagePath =
-            await File('${directory.path}/${widget.orderId}.png').create();
-        await imagePath.writeAsBytes(value);
-        final imageXFile = XFile(imagePath.path);
+  Future<void> printHiddenWidget() async {
+    var res1 = await screenshotController.captureFromWidget(
+        ReceiptWidget(order: order!),
+        delay: const Duration(seconds: 0),
+        context: context);
 
-        /// Share Plugin
-        await Share.shareXFiles([imageXFile]);
-      });
+    // var res2 = await screenshotController
+    //     .captureFromWidget(const Material(child: TermsAndConditionsWidget()));
 
-  Future<void> printHiddenWidget() async => screenshotController
-          .captureFromWidget(receiptWidget())
-          .then((value) async {
-        final doc = pw.Document(
-            title: order!.jobId.toString(),
-            subject: order!.jobId.toString(),
-            author: order!.createdBy.toString());
-        doc.addPage(pw.Page(
-          pageFormat: PdfPageFormat.a6,
-          build: (pw.Context context) =>
-              pw.Center(child: pw.Image(pw.MemoryImage(value))),
-        ));
+    final doc = pw.Document(
+        pageMode: PdfPageMode.fullscreen,
+        title: order!.jobId.toString(),
+        subject: order!.jobId.toString(),
+        author: order!.createdBy.toString());
+    doc.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a6,
+      build: (pw.Context context) =>
+          pw.Center(child: pw.Image(pw.MemoryImage(res1))),
+    ));
+    // doc.addPage(pw.Page(
+    //   pageFormat: PdfPageFormat.a6,
+    //   build: (pw.Context context) =>
+    //       pw.Center(child: pw.Image(pw.MemoryImage(res2))),
+    // ));
 
-        try {
-          await Printing.layoutPdf(onLayout: (layout) => doc.save());
-        } on Exception catch (_) {}
-      });
+    try {
+      await Printing.layoutPdf(onLayout: (layout) => doc.save());
+    } on Exception catch (_) {}
+
+    return Future.value();
+  }
 
   Future<bool> callCustomer() async =>
       await launchUrl(Uri.parse("tel:${order!.customerContact}"));
 
   Future<void> sendWhatsapp() async {
-    return screenshotController
-        .captureFromWidget(receiptWidget())
-        .then((value) async {
-      final directory = await getTemporaryDirectory();
-      final imageFile =
-          await File('${directory.path}/${widget.orderId}.png').create();
-      await imageFile.writeAsBytes(value);
-      final imageXFile = XFile(imageFile.path);
+    var res1 = await screenshotController.captureFromWidget(
+        ReceiptWidget(order: order!),
+        delay: const Duration(seconds: 0),
+        context: context);
 
-      try {
-        // await launchUrl(
-        //   Uri.parse(
-        //       "whatsapp://send?phone=918087103131&file=${imageFile.path}&text=Hello"),
-        // );
-        // const SocialPlatform platform = SocialPlatform.whatsapp;
-        // await SocialSharingPlus.shareToSocialMedia(
-        //   platform,
-        //   "test content",
-        //   media: imageFile.path,
-        //   isOpenBrowser: true,
-        // );
-        // await WhatsappShare.shareFile(
-        //     filePath: [imageFile.path], phone: "91${order!.customerContact}");
-        await shareWhatsapp.share(
-            phone: "91${order!.customerContact}",
-            text: "Order No. ${order!.jobId}",
-            file: imageXFile);
-      } on Exception catch (_) {}
-    });
+    final directory = await getTemporaryDirectory();
+    final imageFile =
+        await File('${directory.path}/${widget.orderId}.png').create();
+    await imageFile.writeAsBytes(res1);
+    final imageXFile = XFile(imageFile.path);
+
+    try {
+      // await launchUrl(
+      //   Uri.parse(
+      //       "whatsapp://send?phone=918087103131&file=${imageFile.path}&text=Hello"),
+      // );
+      // const SocialPlatform platform = SocialPlatform.whatsapp;
+      // await SocialSharingPlus.shareToSocialMedia(
+      //   platform,
+      //   "test content",
+      //   media: imageFile.path,
+      //   isOpenBrowser: true,
+      // );
+      // await WhatsappShare.shareFile(
+      //     filePath: [imageFile.path], phone: "91${order!.customerContact}");
+      await shareWhatsapp.share(
+          phone: "91${order!.customerContact}",
+          text: "Order No. ${order!.jobId}",
+          file: imageXFile);
+    } on Exception catch (_) {}
+
+    return Future.value();
   }
 }
