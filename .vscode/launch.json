@@ -5,21 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "vandana_app",
+            "name": "vandana_app (dev mode)",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "args": ["--cache-sksl","--enable-impeller","--dart-define=SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdmVyem15bHdhZWhxc3FmZGdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM0MDY3MDYsImV4cCI6MjAzODk4MjcwNn0.XZDBlK0JpzQ2Butf9OkJjoDve13yorEp8pNTjETm930"]
         },
         {
             "name": "vandana_app (profile mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "profile"
+            "flutterMode": "profile",
+            "args": ["--cache-sksl","--enable-impeller","--dart-define=SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdmVyem15bHdhZWhxc3FmZGdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM0MDY3MDYsImV4cCI6MjAzODk4MjcwNn0.XZDBlK0JpzQ2Butf9OkJjoDve13yorEp8pNTjETm930"]
         },
         {
             "name": "vandana_app (release mode)",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "args": ["--cache-sksl","--enable-impeller","--dart-define=SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvdmVyem15bHdhZWhxc3FmZGdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjM0MDY3MDYsImV4cCI6MjAzODk4MjcwNn0.XZDBlK0JpzQ2Butf9OkJjoDve13yorEp8pNTjETm930"]
         }
     ]
 }
