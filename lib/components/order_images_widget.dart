@@ -11,48 +11,60 @@ class OrderImagesWidget extends StatefulWidget {
 }
 
 class _OrderImagesWidgetState extends State<OrderImagesWidget> {
-  List<String> images = List.empty(growable: true);
-
   @override
   void initState() {
     fetchImages(widget.orderId);
     super.initState();
   }
 
-  Future<void> fetchImages(String orderId) async {
+  Future<List<String>> fetchImages(String orderId) async {
     var res = await OrderService().getImages(orderId);
-    res.onSuccess((success) {
-      if (success.isNotEmpty) {
-        if (mounted) {
-          setState(() {
-            images = success
-                .map((r) => OrderService().getPublicUrl(
-                    "${Constants.orderImagesFolder}/$orderId/${r.name}"))
-                .where((link) => link != null)
-                .map((link) => link!)
-                .toList();
-          });
-        }
+    if (res.isSuccess()) {
+      var success = res.getOrElse((_) {
+        return List.empty();
+      });
+      if (success.isNotEmpty && mounted) {
+        return success
+            .map((r) => OrderService().getPublicUrl(
+                "${Constants.orderImagesFolder}/$orderId/${r.name}"))
+            .where((link) => link != null)
+            .map((link) => link!)
+            .toList();
       }
-    });
-    res.onFailure((failure) {
-      if (mounted) {
-        images = List.empty(growable: true);
-      }
-    });
+    }
+    return List.empty();
   }
 
   @override
   Widget build(BuildContext context) {
-    return images.isNotEmpty
-        ? ListView.separated(
-            primary: false,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return Image.network(images[index]);
-            },
-            separatorBuilder: (context, index) => const Divider(),
-            itemCount: images.length)
-        : const SizedBox();
+    return FutureBuilder(
+        future: fetchImages(widget.orderId),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+            case ConnectionState.active:
+              return const Center(child: CircularProgressIndicator());
+            case ConnectionState.done:
+              if (snapshot.hasError) {
+                return Text(
+                  'Error loading images',
+                  textAlign: TextAlign.center,
+                );
+              } else {
+                List<String> images = snapshot.data ?? List.empty();
+                return images.isNotEmpty
+                    ? ListView.separated(
+                        primary: false,
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          return Image.network(images[index]);
+                        },
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemCount: images.length)
+                    : const SizedBox();
+              }
+          }
+        });
   }
 }
