@@ -76,11 +76,5 @@ class _ReasonDialogState extends State<ReasonDialog> {
     } else {
       return Future.value("Failure");
     }
-    res.onSuccess((success) {});
-    res.onFailure((failure) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error: $failure"),
-      ));
-    });
   }
 }

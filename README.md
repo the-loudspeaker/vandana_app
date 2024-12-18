@@ -25,7 +25,7 @@ ___
 make sure to add `--dart-define=SUPABASE_KEY=your_supabase_anon_key` to run args.
 
 ### TODO
-- [] OrderService().update method. Only update data that's modified.
+- [x] OrderService().update method. Only update data that's modified.
 - [x] flow for deleting or rejection cancellation. take remarks as input.
 - [x] separate delivered flow. Take remarks, mark as paid.
 - [x] share order details/invoice screenshot / pdf.
@@ -36,8 +36,9 @@ make sure to add `--dart-define=SUPABASE_KEY=your_supabase_anon_key` to run args
 - [x] Whatsapp message button.
 - [x] Single image when creating.
 - [x] Reject & cancel dialog box bug.
-- [] Multiple images on delivering.
-- [] Deliver rework.
+- [x] Multiple images on delivering.
+- [] Filter orders list using tabs for different states.
+- [] Admin features for adding users.
 - [] Send SMS on created & delivered.
 - [] Dark mode. Sync with System.
 - [] refactor: move to FutureBuilder for order details & orders list.

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mime/mime.dart';
 import 'package:vandana_app/utils/custom_fonts.dart';
+import 'package:vandana_app/utils/local_images_preview.dart';
 
 class ImagePickerPage extends StatefulWidget {
   final Function onPick;
@@ -35,55 +34,6 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
           _mediaFileList.add(value);
         }
       }
-    }
-  }
-
-  Widget _previewImages() {
-    final Text? retrieveError = _getRetrieveErrorWidget();
-    if (retrieveError != null) {
-      return retrieveError;
-    }
-    if (_mediaFileList.isNotEmpty) {
-      return Semantics(
-        label: 'image_picker_example_picked_images',
-        child: ListView.separated(
-            itemBuilder: (BuildContext context, int index) {
-              final String? mime = lookupMimeType(_mediaFileList[index].path);
-
-              // Why network for web?
-              // See https://pub.dev/packages/image_picker_for_web#limitations-on-the-web-platform
-              return Semantics(
-                label: 'image_picker_example_picked_image',
-                child: kIsWeb
-                    ? Image.network(_mediaFileList[index].path)
-                    : (mime == null || mime.startsWith('image/')
-                        ? Image.file(
-                            File(_mediaFileList[index].path),
-                            errorBuilder: (BuildContext context, Object error,
-                                StackTrace? stackTrace) {
-                              return const Center(
-                                  child:
-                                      Text('This image type is not supported'));
-                            },
-                          )
-                        : const SizedBox()),
-              );
-            },
-            itemCount: _mediaFileList.length,
-            separatorBuilder: (BuildContext context, int index) =>
-                const Divider()),
-      );
-    } else if (_pickImageError != null) {
-      return Text(
-        'Pick image error: $_pickImageError',
-        textAlign: TextAlign.center,
-      );
-    } else {
-      return Text(
-        'You have not yet picked an image.',
-        textAlign: TextAlign.center,
-        style: MontserratFont.paragraphReg1,
-      );
     }
   }
 
@@ -131,7 +81,7 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
                         textAlign: TextAlign.center,
                       );
                     case ConnectionState.done:
-                      return _previewImages();
+                      return LocalImagesPreview(mediaFileList: _mediaFileList, pickImageError: _pickImageError, retrieveDataError: _retrieveDataError);
                     case ConnectionState.active:
                       if (snapshot.hasError) {
                         return Text(
@@ -147,7 +97,7 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
                   }
                 },
               )
-            : _previewImages(),
+            : LocalImagesPreview(mediaFileList: _mediaFileList, pickImageError: _pickImageError, retrieveDataError: _retrieveDataError),
       ),
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -196,14 +146,5 @@ class _ImagePickerPageState extends State<ImagePickerPage> {
         ],
       ),
     );
-  }
-
-  Text? _getRetrieveErrorWidget() {
-    if (_retrieveDataError != null) {
-      final Text result = Text(_retrieveDataError!);
-      _retrieveDataError = null;
-      return result;
-    }
-    return null;
   }
 }

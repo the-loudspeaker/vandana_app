@@ -78,9 +78,9 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
               ? "Edit Order no. ${widget.givenOrder?.jobId}"
               : "Create order",
           context),
-      body: SingleChildScrollView(
-        child: !loading
-            ? Padding(
+      body: !loading
+          ? SingleChildScrollView(
+              child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,9 +352,9 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                     if (image != null) Image.file(File(image!.path))
                   ],
                 ),
-              )
-            : Center(child: CircularProgressIndicator()),
-      ),
+              ),
+            )
+          : Center(child: CircularProgressIndicator()),
       floatingActionButton: showButton()
           ? FloatingActionButton(
               onPressed: showButton()
