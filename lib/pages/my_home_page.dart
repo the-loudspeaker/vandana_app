@@ -27,20 +27,24 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       isLoading = true;
     });
-    Result<Session, String> currSessionFuture =
-        await Authentication().getSessionDetails();
-    currSessionFuture.onSuccess((success) {
-      showWelcomeSnackBar();
-      setState(() {
-        isLoading = false;
-        authenticated = true;
+    try {
+      Result<Session> currSessionFuture =
+          await Authentication().getSessionDetails();
+      currSessionFuture.onSuccess((success) {
+        showWelcomeSnackBar();
+        setState(() {
+          isLoading = false;
+          authenticated = true;
+        });
       });
-    });
-    currSessionFuture.onFailure((failure) {
-      setState(() {
-        isLoading = false;
+      currSessionFuture.onFailure((failure) {
+        setState(() {
+          isLoading = false;
+        });
       });
-    });
+    } on Exception catch (e) {
+      print(e.toString());
+    }
   }
 
   void showWelcomeSnackBar() async {

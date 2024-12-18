@@ -6,7 +6,7 @@ import 'package:vandana_app/model/user_entity.dart';
 
 class Authentication {
   final supabase = Supabase.instance.client;
-  Future<Result<AuthResponse, String>> signInWithEmail(
+  Future<Result<AuthResponse>> signInWithEmail(
       String email, String password) async {
     try {
       AuthResponse res = await supabase.auth
@@ -18,12 +18,12 @@ class Authentication {
       prefs.setString("email", user.email);
       prefs.setBool("admin", user.admin);
       return Success(res);
-    } on AuthException catch (e) {
-      return Failure(e.message);
+    } on AuthException catch (_) {
+      rethrow;
     }
   }
 
-  Future<Result<Session, String>> getSessionDetails() async {
+  Future<Result<Session>> getSessionDetails() async {
     var currSession = supabase.auth.currentSession;
     if (currSession != null) {
       if (currSession.isExpired) {
@@ -33,7 +33,7 @@ class Authentication {
           currSession = res.session!;
         } on Exception catch (e) {
           debugPrint(e.toString());
-          return const Failure("error during refresh");
+          rethrow;
         }
       }
       final UserEntity user = await getUser(currSession.user.email!);
@@ -45,7 +45,7 @@ class Authentication {
       return Success(currSession);
     } else {
       print("No session");
-      return const Failure("no session");
+      throw Exception("No session");
     }
   }
 

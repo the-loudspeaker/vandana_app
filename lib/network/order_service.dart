@@ -9,29 +9,29 @@ import 'package:vandana_app/utils/constants.dart';
 class OrderService {
   final supabase = Supabase.instance.client;
 
-  Future<Result<List<Order>, String>> getOrdersList() async {
+  Future<Result<List<Order>>> getOrdersList() async {
     try {
       final data = await supabase
           .from("orders")
           .select('*')
           .order("created_at", ascending: false);
       return Success(Order.fromList(data));
-    } on Exception catch (e) {
-      return Failure(e.toString());
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 
-  Future<Result<Order, String>> getOrderById(String id) async {
+  Future<Result<Order>> getOrderById(String id) async {
     try {
       final data = await supabase.from("orders").select("*").eq("id", id);
       if (data.isEmpty) throw Exception("No order found");
       return Success(Order.fromMap(data.first));
-    } on Exception catch (e) {
-      return Failure(e.toString());
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 
-  Future<Result<String, String>> upsertImage(
+  Future<Result<String>> upsertImage(
       String orderId, File image, String destFileName) async {
     try {
       final String fullPath =
@@ -41,19 +41,19 @@ class OrderService {
                 fileOptions: const FileOptions(upsert: true),
               );
       return Success(fullPath);
-    } on Exception catch (e) {
-      return Failure(e.toString());
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 
-  Future<Result<List<FileObject>, String>> getImages(String orderId) async {
+  Future<Result<List<FileObject>>> getImages(String orderId) async {
     try {
       final imageList = await supabase.storage
           .from(Constants.imageBucket)
           .list(path: "${Constants.orderImagesFolder}/$orderId");
       return Success(imageList);
-    } on Exception catch (e) {
-      return Failure(e.toString());
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 
@@ -65,7 +65,7 @@ class OrderService {
     }
   }
 
-  Future<Result<Order, String>> updateOrder(
+  Future<Result<Order>> updateOrder(
       String id, Map<dynamic, dynamic> fieldsMap) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -77,12 +77,12 @@ class OrderService {
           await supabase.from("orders").update(fieldsMap).eq('id', id).select();
       if (data.isEmpty) throw Exception("No order found");
       return Success(Order.fromMap(data.first));
-    } on Exception catch (e) {
-      return Failure(e.toString());
+    } on Exception catch (_) {
+      rethrow;
     }
   }
 
-  Future<Result<Order, String>> createOrder(
+  Future<Result<Order>> createOrder(
       Map<dynamic, dynamic> fieldsMap) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -97,9 +97,9 @@ class OrderService {
     } on Exception catch (e) {
       print(e);
       if (e.toString().contains("estimated_cost")) {
-        return const Failure("Check Estimated Cost");
+        throw Exception("Check estimated cost");
       }
-      return Failure(e.toString());
+      rethrow;
     }
   }
 }

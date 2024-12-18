@@ -20,8 +20,6 @@ import 'package:vandana_app/model/order_entity.dart';
 import 'package:vandana_app/network/order_service.dart';
 import 'package:vandana_app/pages/edit_order.dart';
 import 'package:vandana_app/utils/custom_fonts.dart';
-import 'package:vandana_app/utils/shop_name.dart';
-import 'package:vandana_app/utils/terms_and_conditions.dart';
 import 'package:vandana_app/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -258,7 +256,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       });
     }
 
-    Result<Order, String> res =
+    Result<Order> res =
         await OrderService().getOrderById(widget.orderId);
     res.onSuccess((success) {
       if (mounted) {
@@ -273,7 +271,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
         setState(() {
           isLoading = false;
           isError = true;
-          errorMessage = failure;
+          errorMessage = failure.toString();
         });
       }
     });

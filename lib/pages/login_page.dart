@@ -70,14 +70,14 @@ class _LoginPageState extends State<LoginPage> {
         password != null &&
         email!.isNotEmpty &&
         password!.isNotEmpty) {
-      Result<AuthResponse, String> res =
+      Result<AuthResponse> res =
           await Authentication().signInWithEmail(email!, password!);
       res.onSuccess((success) {
         widget.loginCallback();
       });
       res.onFailure((failure) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(failure),
+          content: Text(failure.toString()),
         ));
       });
     }

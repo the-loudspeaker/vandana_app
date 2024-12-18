@@ -9,7 +9,7 @@ ___
 - Sign in for employees.
 - Order creation & state management.
 - Track POC for each order.
-- Images for orders.
+- Images for orders during creation & delivery.
 - Sharing of invoice.
 - Updates on sms.
 

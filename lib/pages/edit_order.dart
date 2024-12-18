@@ -21,6 +21,7 @@ class EditOrderScreen extends StatefulWidget {
 
 class _EditOrderScreenState extends State<EditOrderScreen> {
   bool isExistingOrder = false;
+  bool loading = false;
   OrderState? orderState = OrderState.RECEIVED;
   String? customerName;
   num? customerContact;
@@ -78,256 +79,281 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
               : "Create order",
           context),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FormBuilderDropdown<OrderState>(
-                  name: "Order Status",
-                  initialValue: orderState,
-                  decoration: InputDecoration(
-                      labelText: orderState == null
-                          ? "Select Order Status"
-                          : "Order Status:"),
-                  items: OrderState.values
-                      .where((e) => isExistingOrder
-                          ? e != OrderState.DELIVERED
-                          : e == OrderState.RECEIVED)
-                      .map((e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(e.name,
-                                style: MontserratFont.heading4
-                                    .copyWith(color: getOrderColor(e.name))),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      orderState = value ?? OrderState.RECEIVED;
-                    });
-                  }),
-              FormBuilderTextField(
-                  initialValue: customerName,
-                  name: 'Customer Name',
-                  onChanged: (val) {
-                    setState(() {
-                      customerName = val;
-                    });
-                  },
-                  decoration: InputDecoration(
-                      labelText: isNullOREmpty(customerName)
-                          ? "Enter Customer Name"
-                          : "Customer Name:"),
-                  keyboardType: TextInputType.text,
-                  autovalidateMode: AutovalidateMode.onUnfocus,
-                  autocorrect: false,
-                  autofocus: false),
-              FormBuilderField<num>(
-                initialValue: customerContact,
-                name: "Customer Contact no.",
-                onChanged: (val) {
-                  setState(() {
-                    customerContact = val;
-                  });
-                },
-                builder: (FormFieldState<num> field) {
-                  return TextField(
-                    controller: _customerContactController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                        labelText: customerContact == null
-                            ? "Enter Customer Contact No."
-                            : "Customer Contact No.:"),
-                    autocorrect: false,
-                    onChanged: (val) =>
-                        field.didChange(num.tryParse(val) ?? customerContact),
-                  );
-                },
-              ),
-              FormBuilderTextField(
-                  name: 'Device Model',
-                  initialValue: model,
-                  onChanged: (val) {
-                    setState(() {
-                      model = val;
-                    });
-                  },
-                  decoration: InputDecoration(
-                      labelText: isNullOREmpty(model)
-                          ? "Enter Device Model"
-                          : "Device Model:"),
-                  keyboardType: TextInputType.text,
-                  autovalidateMode: AutovalidateMode.onUnfocus,
-                  autocorrect: false),
-              FormBuilderTextField(
-                  name: 'Issue description',
-                  initialValue: issueDescription,
-                  onChanged: (val) {
-                    setState(() {
-                      setState(() {
-                        issueDescription = val;
-                      });
-                    });
-                  },
-                  decoration: InputDecoration(
-                      labelText: isNullOREmpty(issueDescription)
-                          ? "Enter Problem"
-                          : "Problem:"),
-                  keyboardType: TextInputType.text,
-                  autovalidateMode: AutovalidateMode.onUnfocus,
-                  autocorrect: false),
-              FormBuilderTextField(
-                  maxLines: 3,
-                  name: 'Remarks',
-                  initialValue: remarks,
-                  onChanged: (val) {
-                    setState(() {
-                      remarks = val;
-                    });
-                  },
-                  decoration: InputDecoration(
-                      labelText:
-                          isNullOREmpty(remarks) ? "Add Remarks" : "Remarks:"),
-                  keyboardType: TextInputType.multiline,
-                  autovalidateMode: AutovalidateMode.onUnfocus,
-                  autocorrect: false),
-              FormBuilderField<num>(
-                name: "Estimated Cost.",
-                initialValue: estimatedCost,
-                onChanged: (val) {
-                  setState(() {
-                    estimatedCost = val;
-                  });
-                },
-                builder: (FormFieldState<num> field) {
-                  return TextField(
-                    controller: _estimatedCostController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        labelText: estimatedCost == null
-                            ? "Enter Estimated Cost (in Rs.):"
-                            : "Estimated Cost (in Rs.):"),
-                    autocorrect: false,
-                    onChanged: (val) => field.didChange(num.tryParse(val) ?? 0),
-                  );
-                },
-              ),
-              FormBuilderField<num>(
-                name: "Advance paid.",
-                initialValue: advancedPaid,
-                onChanged: (val) {
-                  setState(() {
-                    advancedPaid = val ?? 0;
-                  });
-                },
-                builder: (FormFieldState<num> field) {
-                  return TextField(
-                    controller: _advancePaidController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                        labelText: advancedPaid == 0
-                            ? "Enter advance paid (in Rs.):"
-                            : "Advance Paid (in Rs.):"),
-                    autocorrect: false,
-                    onChanged: (val) => field.didChange(num.tryParse(val) ?? 0),
-                  );
-                },
-              ),
-              FormBuilderDropdown<ScreenLockType>(
-                  name: "ScreenLock Type",
-                  initialValue: screenLockType,
-                  decoration: InputDecoration(
-                      labelText: screenLockType == null
-                          ? "Select Screen Lock Type"
-                          : "Screen Lock Type:"),
-                  items: ScreenLockType.values
-                      .map((e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(e.name),
-                          ))
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      screenLockType = value ?? ScreenLockType.NONE;
-                    });
-                  }),
-              screenLockType == ScreenLockType.PASSWORD ||
-                      screenLockType == ScreenLockType.PIN
-                  ? FormBuilderTextField(
-                      name: 'Screen Lock',
-                      initialValue: screenLock,
+        child: !loading
+            ? Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 16.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FormBuilderDropdown<OrderState>(
+                        name: "Order Status",
+                        initialValue: orderState,
+                        decoration: InputDecoration(
+                            labelText: orderState == null
+                                ? "Select Order Status"
+                                : "Order Status:"),
+                        items: OrderState.values
+                            .where((e) => isExistingOrder
+                                ? e != OrderState.DELIVERED
+                                : e == OrderState.RECEIVED)
+                            .map((e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e.name,
+                                      style: MontserratFont.heading4.copyWith(
+                                          color: getOrderColor(e.name))),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            orderState = value ?? OrderState.RECEIVED;
+                          });
+                        }),
+                    FormBuilderTextField(
+                        initialValue: customerName,
+                        name: 'Customer Name',
+                        canRequestFocus: false,
+                        onChanged: (val) {
+                          setState(() {
+                            customerName = val;
+                          });
+                        },
+                        decoration: InputDecoration(
+                            labelText: isNullOREmpty(customerName)
+                                ? "Enter Customer Name"
+                                : "Customer Name:"),
+                        keyboardType: TextInputType.text,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        autocorrect: false,
+                        autofocus: false),
+                    FormBuilderField<num>(
+                      initialValue: customerContact,
+                      name: "Customer Contact no.",
                       onChanged: (val) {
                         setState(() {
-                          screenLock = val;
+                          customerContact = val;
+                        });
+                      },
+                      builder: (FormFieldState<num> field) {
+                        return TextField(
+                          controller: _customerContactController,
+                          keyboardType: TextInputType.phone,
+                          canRequestFocus: false,
+                          decoration: InputDecoration(
+                              labelText: customerContact == null
+                                  ? "Enter Customer Contact No."
+                                  : "Customer Contact No.:"),
+                          autocorrect: false,
+                          onChanged: (val) => field
+                              .didChange(num.tryParse(val) ?? customerContact),
+                        );
+                      },
+                    ),
+                    FormBuilderTextField(
+                        autofocus: false,
+                        name: 'Device Model',
+                        initialValue: model,
+                        canRequestFocus: false,
+                        onChanged: (val) {
+                          setState(() {
+                            model = val;
+                          });
+                        },
+                        decoration: InputDecoration(
+                            labelText: isNullOREmpty(model)
+                                ? "Enter Device Model"
+                                : "Device Model:"),
+                        keyboardType: TextInputType.text,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        autocorrect: false),
+                    FormBuilderTextField(
+                        autofocus: false,
+                        name: 'Issue description',
+                        canRequestFocus: false,
+                        initialValue: issueDescription,
+                        onChanged: (val) {
+                          setState(() {
+                            setState(() {
+                              issueDescription = val;
+                            });
+                          });
+                        },
+                        decoration: InputDecoration(
+                            labelText: isNullOREmpty(issueDescription)
+                                ? "Enter Problem"
+                                : "Problem:"),
+                        keyboardType: TextInputType.text,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        autocorrect: false),
+                    FormBuilderTextField(
+                        autofocus: false,
+                        canRequestFocus: false,
+                        maxLines: 3,
+                        name: 'Remarks',
+                        initialValue: remarks,
+                        onChanged: (val) {
+                          setState(() {
+                            remarks = val;
+                          });
+                        },
+                        decoration: InputDecoration(
+                            labelText: isNullOREmpty(remarks)
+                                ? "Add Remarks"
+                                : "Remarks:"),
+                        keyboardType: TextInputType.multiline,
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        autocorrect: false),
+                    FormBuilderField<num>(
+                      name: "Estimated Cost.",
+                      initialValue: estimatedCost,
+                      onChanged: (val) {
+                        setState(() {
+                          estimatedCost = val;
+                        });
+                      },
+                      builder: (FormFieldState<num> field) {
+                        return TextField(
+                          autofocus: false,
+                          controller: _estimatedCostController,
+                          keyboardType: TextInputType.number,
+                          canRequestFocus: false,
+                          decoration: InputDecoration(
+                              labelText: estimatedCost == null
+                                  ? "Enter Estimated Cost (in Rs.):"
+                                  : "Estimated Cost (in Rs.):"),
+                          autocorrect: false,
+                          onChanged: (val) =>
+                              field.didChange(num.tryParse(val) ?? 0),
+                        );
+                      },
+                    ),
+                    FormBuilderField<num>(
+                      name: "Advance paid.",
+                      initialValue: advancedPaid,
+                      onChanged: (val) {
+                        setState(() {
+                          advancedPaid = val ?? 0;
+                        });
+                      },
+                      builder: (FormFieldState<num> field) {
+                        return TextField(
+                          autofocus: false,
+                          canRequestFocus: false,
+                          controller: _advancePaidController,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                              labelText: advancedPaid == 0
+                                  ? "Enter advance paid (in Rs.):"
+                                  : "Advance Paid (in Rs.):"),
+                          autocorrect: false,
+                          onChanged: (val) =>
+                              field.didChange(num.tryParse(val) ?? 0),
+                        );
+                      },
+                    ),
+                    FormBuilderDropdown<ScreenLockType>(
+                        autofocus: false,
+                        name: "ScreenLock Type",
+                        initialValue: screenLockType,
+                        decoration: InputDecoration(
+                            labelText: screenLockType == null
+                                ? "Select Screen Lock Type"
+                                : "Screen Lock Type:"),
+                        items: ScreenLockType.values
+                            .map((e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e.name),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            screenLockType = value ?? ScreenLockType.NONE;
+                          });
+                        }),
+                    screenLockType == ScreenLockType.PASSWORD ||
+                            screenLockType == ScreenLockType.PIN
+                        ? FormBuilderTextField(
+                            name: 'Screen Lock',
+                            canRequestFocus: false,
+                            initialValue: screenLock,
+                            onChanged: (val) {
+                              setState(() {
+                                screenLock = val;
+                              });
+                            },
+                            decoration: InputDecoration(
+                                labelText: isNullOREmpty(screenLock)
+                                    ? screenLockType == ScreenLockType.PASSWORD
+                                        ? "Enter Password"
+                                        : screenLockType == ScreenLockType.PIN
+                                            ? "Enter Pin"
+                                            : ""
+                                    : screenLockType == ScreenLockType.PASSWORD
+                                        ? "Password"
+                                        : screenLockType == ScreenLockType.PIN
+                                            ? "PIN"
+                                            : "Screen Lock"),
+                            keyboardType:
+                                screenLockType == ScreenLockType.PASSWORD
+                                    ? TextInputType.text
+                                    : screenLockType == ScreenLockType.PIN
+                                        ? TextInputType.number
+                                        : TextInputType.text,
+                            autovalidateMode: AutovalidateMode.onUnfocus,
+                            autocorrect: false,
+                            autofocus: false)
+                        : const SizedBox(),
+                    FormBuilderCheckboxGroup(
+                      name: "Items Collected",
+                      options: ItemType.values
+                          .map((e) => FormBuilderFieldOption<ItemType>(
+                                value: e,
+                                child: Text(e.name),
+                              ))
+                          .toList(),
+                      initialValue: itemsList,
+                      onChanged: (values) {
+                        setState(() {
+                          itemsList = values ?? [];
                         });
                       },
                       decoration: InputDecoration(
-                          labelText: isNullOREmpty(screenLock)
-                              ? screenLockType == ScreenLockType.PASSWORD
-                                  ? "Enter Password"
-                                  : screenLockType == ScreenLockType.PIN
-                                      ? "Enter Pin"
-                                      : ""
-                              : screenLockType == ScreenLockType.PASSWORD
-                                  ? "Password"
-                                  : screenLockType == ScreenLockType.PIN
-                                      ? "PIN"
-                                      : "Screen Lock"),
-                      keyboardType: screenLockType == ScreenLockType.PASSWORD
-                          ? TextInputType.text
-                          : screenLockType == ScreenLockType.PIN
-                              ? TextInputType.number
-                              : TextInputType.text,
-                      autovalidateMode: AutovalidateMode.onUnfocus,
-                      autocorrect: false,
-                      autofocus: false)
-                  : const SizedBox(),
-              FormBuilderCheckboxGroup(
-                name: "Items Collected",
-                options: ItemType.values
-                    .map((e) => FormBuilderFieldOption<ItemType>(
-                          value: e,
-                          child: Text(e.name),
-                        ))
-                    .toList(),
-                initialValue: itemsList,
-                onChanged: (values) {
-                  setState(() {
-                    itemsList = values ?? [];
-                  });
-                },
-                decoration: InputDecoration(
-                    labelText: itemsList.isEmpty
-                        ? "Select Items collected"
-                        : "Items Collected"),
-              ),
-              if (!isExistingOrder)
-                Row(
-                  children: [
-                    Expanded(
-                        child: ElevatedButton(
-                            onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ImagePickerPage(
-                                          onPick: (List<XFile> images) {
-                                            if (mounted && images.isNotEmpty) {
-                                              setState(() {
-                                                image = images.first;
-                                              });
-                                            }
-                                          },
-                                        ))),
-                            child: Text(
-                                image == null ? "Add image" : "Re upload image",
-                                style: MontserratFont.paragraphReg1))),
+                          labelText: itemsList.isEmpty
+                              ? "Select Items collected"
+                              : "Items Collected"),
+                    ),
+                    if (!isExistingOrder)
+                      SizedBox(
+                        height: 48.h,
+                        child: Center(
+                          child: ElevatedButton(
+                              autofocus: false,
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ImagePickerPage(
+                                            singleImage: true,
+                                            onPick: (List<XFile> images) {
+                                              if (mounted &&
+                                                  images.isNotEmpty) {
+                                                setState(() {
+                                                  image = images.first;
+                                                });
+                                              }
+                                            },
+                                          ))),
+                              child: Text(
+                                  image == null
+                                      ? "Add image"
+                                      : "Re-upload image",
+                                  style: MontserratFont.paragraphReg1)),
+                        ),
+                      ),
+                    if (image != null) Image.file(File(image!.path))
                   ],
                 ),
-              if (image != null) Image.file(File(image!.path))
-            ],
-          ),
-        ),
+              )
+            : Center(child: CircularProgressIndicator()),
       ),
       floatingActionButton: showButton()
           ? FloatingActionButton(
@@ -352,10 +378,16 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
         !isNullOREmpty(estimatedCost.toString()) &&
         estimatedCost != 0 &&
         itemsList.isNotEmpty &&
-        imageCheck;
+        imageCheck &&
+        !loading;
   }
 
   void updateOrder() async {
+    if (mounted) {
+      setState(() {
+        loading = true;
+      });
+    }
     //create a map from fields.
     Map<dynamic, dynamic> fieldsMap = {
       'status': orderState!.name,
@@ -384,10 +416,20 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Error: $failure"),
       ));
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
     });
   }
 
   void createOrder() async {
+    if (mounted) {
+      setState(() {
+        loading = true;
+      });
+    }
     //create a map from fields.
     Map<dynamic, dynamic> fieldsMap = {
       'status': orderState!.name,
@@ -421,6 +463,11 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Error: $failure"),
       ));
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
     });
   }
 }
