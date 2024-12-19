@@ -44,6 +44,9 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     } on Exception catch (e) {
       print(e.toString());
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 

@@ -18,7 +18,7 @@ class Authentication {
       prefs.setString("email", user.email);
       prefs.setBool("admin", user.admin);
       return Success(res);
-    } on AuthException catch (_) {
+    } on Exception catch (_) {
       rethrow;
     }
   }

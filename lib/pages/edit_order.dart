@@ -112,7 +112,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                     FormBuilderTextField(
                         initialValue: customerName,
                         name: 'Customer Name',
-                        canRequestFocus: false,
                         onChanged: (val) {
                           setState(() {
                             customerName = val;
@@ -138,7 +137,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                         return TextField(
                           controller: _customerContactController,
                           keyboardType: TextInputType.phone,
-                          canRequestFocus: false,
                           decoration: InputDecoration(
                               labelText: customerContact == null
                                   ? "Enter Customer Contact No."
@@ -153,7 +151,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                         autofocus: false,
                         name: 'Device Model',
                         initialValue: model,
-                        canRequestFocus: false,
                         onChanged: (val) {
                           setState(() {
                             model = val;
@@ -169,7 +166,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                     FormBuilderTextField(
                         autofocus: false,
                         name: 'Issue description',
-                        canRequestFocus: false,
                         initialValue: issueDescription,
                         onChanged: (val) {
                           setState(() {
@@ -187,7 +183,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                         autocorrect: false),
                     FormBuilderTextField(
                         autofocus: false,
-                        canRequestFocus: false,
                         maxLines: 3,
                         name: 'Remarks',
                         initialValue: remarks,
@@ -216,7 +211,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                           autofocus: false,
                           controller: _estimatedCostController,
                           keyboardType: TextInputType.number,
-                          canRequestFocus: false,
                           decoration: InputDecoration(
                               labelText: estimatedCost == null
                                   ? "Enter Estimated Cost (in Rs.):"
@@ -238,7 +232,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                       builder: (FormFieldState<num> field) {
                         return TextField(
                           autofocus: false,
-                          canRequestFocus: false,
                           controller: _advancePaidController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
@@ -274,7 +267,6 @@ class _EditOrderScreenState extends State<EditOrderScreen> {
                             screenLockType == ScreenLockType.PIN
                         ? FormBuilderTextField(
                             name: 'Screen Lock',
-                            canRequestFocus: false,
                             initialValue: screenLock,
                             onChanged: (val) {
                               setState(() {

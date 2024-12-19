@@ -70,16 +70,24 @@ class _LoginPageState extends State<LoginPage> {
         password != null &&
         email!.isNotEmpty &&
         password!.isNotEmpty) {
-      Result<AuthResponse> res =
-          await Authentication().signInWithEmail(email!, password!);
-      res.onSuccess((success) {
+      try {
+        Result<AuthResponse> res =
+            await Authentication().signInWithEmail(email!, password!);
+        res.getOrThrow();
         widget.loginCallback();
-      });
-      res.onFailure((failure) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(failure.toString()),
-        ));
-      });
+      } on Exception catch (e) {
+        if (mounted) {
+          if (e.runtimeType == AuthApiException) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Check email & password"),
+            ));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(e.toString()),
+            ));
+          }
+        }
+      }
     }
   }
 }

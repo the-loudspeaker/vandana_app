@@ -10,8 +10,8 @@ import 'custom_fonts.dart';
 class LocalImagesPreview extends StatelessWidget {
   final List<XFile> mediaFileList;
   final dynamic pickImageError;
-  String? retrieveDataError;
-  LocalImagesPreview(
+  final String? retrieveDataError;
+  const LocalImagesPreview(
       {super.key,
       required this.mediaFileList,
       this.pickImageError,
@@ -72,7 +72,6 @@ class LocalImagesPreview extends StatelessWidget {
   Text? _getRetrieveErrorWidget() {
     if (retrieveDataError != null) {
       final Text result = Text(retrieveDataError!);
-      retrieveDataError = null;
       return result;
     }
     return null;
