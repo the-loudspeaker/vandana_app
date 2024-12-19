@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -195,11 +196,25 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                FloatingActionButton(
-                    heroTag: "share order",
-                    tooltip: "Share",
-                    onPressed: shareHiddenWidget,
-                    child: const Icon(Icons.share)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    FloatingActionButton(
+                        heroTag: "share order",
+                        tooltip: "Share",
+                        onPressed: shareHiddenWidget,
+                        child: const Icon(Icons.share)),
+                    Padding(
+                      padding: EdgeInsets.only(left: 16.h),
+                      child: FloatingActionButton(
+                        heroTag: "Add contact",
+                        tooltip: "Add contact.",
+                        onPressed: addCustomerContact,
+                        child: const Icon(Icons.person_add),
+                      ),
+                    )
+                  ],
+                ),
                 Padding(
                   padding: EdgeInsets.only(top: 16.h),
                   child: Row(
@@ -256,8 +271,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       });
     }
 
-    Result<Order> res =
-        await OrderService().getOrderById(widget.orderId);
+    Result<Order> res = await OrderService().getOrderById(widget.orderId);
     res.onSuccess((success) {
       if (mounted) {
         setState(() {
@@ -386,17 +400,19 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 
   Future<void> shareHiddenWidget() async {
-    var res1 = await screenshotController.captureFromWidget(
-        ReceiptWidget(order: order!),
-        delay: const Duration(seconds: 0),
-        context: context);
+    if (mounted) {
+      var res1 = await screenshotController.captureFromWidget(
+          ReceiptWidget(order: order!),
+          delay: const Duration(seconds: 0),
+          context: context);
 
-    final directory = await getApplicationDocumentsDirectory();
-    final imageFile =
-        await File('${directory.path}/${widget.orderId}.png').create();
-    await imageFile.writeAsBytes(res1);
+      final directory = await getApplicationDocumentsDirectory();
+      final imageFile =
+          await File('${directory.path}/${widget.orderId}.png').create();
+      await imageFile.writeAsBytes(res1);
 
-    await Share.shareXFiles([XFile(imageFile.path)]);
+      await Share.shareXFiles([XFile(imageFile.path)]);
+    }
     return Future.value();
   }
 
@@ -436,10 +452,20 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       await launchUrl(Uri.parse("tel:${order!.customerContact}"));
 
   Future<void> sendWhatsapp() async {
-    var res1 = await screenshotController.captureFromWidget(
-        ReceiptWidget(order: order!),
-        delay: const Duration(seconds: 0),
-        context: context);
+    // var res1 = await screenshotController.captureFromWidget(
+    //     ReceiptWidget(order: order!),
+    //     delay: const Duration(seconds: 0),
+    //     context: context);
+    //
+    // var res2 = await addCustomerContact();
+
+    List<Future> futures = [
+      screenshotController.captureFromWidget(ReceiptWidget(order: order!),
+          delay: const Duration(seconds: 0), context: context),
+      addCustomerContact()
+    ];
+    var res = await Future.wait(futures);
+    var res1 = res[0];
 
     final directory = await getTemporaryDirectory();
     final imageFile =
@@ -468,5 +494,38 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     } on Exception catch (_) {}
 
     return Future.value();
+  }
+
+  addCustomerContact() async {
+    if (await FlutterContacts.requestPermission()) {
+      List<Contact> contacts = await FlutterContacts.getContacts(
+          withProperties: true, deduplicateProperties: true);
+      FlutterContacts.addListener(() async => contacts =
+          await FlutterContacts.getContacts(
+              withProperties: true, deduplicateProperties: true));
+
+      bool exists = contacts.any((contact) {
+        return contact.phones.any((phone) {
+          return phone.normalizedNumber
+              .contains("${order?.customerContact.toString()}");
+        });
+      });
+      if (exists) {
+        debugPrint("exists");
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("Contact exists"),
+            duration: Duration(milliseconds: 500),
+          ));
+        }
+      } else {
+        debugPrint("not exists");
+        final newContact = Contact()
+          ..name.first = '${order?.customerName}'
+          ..phones = [Phone('${order?.customerContact}')];
+        await FlutterContacts.openExternalInsert(newContact);
+        await Future.delayed(Duration(milliseconds: 200));
+      }
+    }
   }
 }
