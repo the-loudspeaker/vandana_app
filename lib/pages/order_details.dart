@@ -466,7 +466,7 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
     ];
     var res = await Future.wait(futures);
     var res1 = res[0];
-
+    var res2 = res[1];
     final directory = await getTemporaryDirectory();
     final imageFile =
         await File('${directory.path}/${widget.orderId}.png').create();
@@ -487,16 +487,18 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
       // );
       // await WhatsappShare.shareFile(
       //     filePath: [imageFile.path], phone: "91${order!.customerContact}");
-      await shareWhatsapp.share(
-          phone: "91${order!.customerContact}",
-          text: "Order No. ${order!.jobId}",
-          file: imageXFile);
+      if (res2 != null) {
+        await shareWhatsapp.share(
+            phone: "91${order!.customerContact}",
+            text: "Order No. ${order!.jobId}",
+            file: imageXFile);
+      }
     } on Exception catch (_) {}
 
     return Future.value();
   }
 
-  addCustomerContact() async {
+  Future<Contact?> addCustomerContact() async {
     if (await FlutterContacts.requestPermission()) {
       List<Contact> contacts = await FlutterContacts.getContacts(
           withProperties: true, deduplicateProperties: true);
@@ -518,14 +520,23 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
             duration: Duration(milliseconds: 500),
           ));
         }
+        return Future.value(contacts.firstWhere((contact) {
+          return contact.phones.any((phone) {
+            return phone.normalizedNumber
+                .contains("${order?.customerContact.toString()}");
+          });
+        }));
       } else {
         debugPrint("not exists");
         final newContact = Contact()
           ..name.first = '${order?.customerName}'
           ..phones = [Phone('${order?.customerContact}')];
-        await FlutterContacts.openExternalInsert(newContact);
+        var r = await FlutterContacts.openExternalInsert(newContact);
         await Future.delayed(Duration(milliseconds: 200));
+        return r;
       }
+    } else {
+      return null;
     }
   }
 }
